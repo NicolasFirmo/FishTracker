@@ -1,0 +1,3 @@
+[submodule "FishTracker/vendor/wxWidgets"]
+	path = FishTracker/vendor/wxWidgets
+	url = git@github.com:wxWidgets/wxWidgets.git
