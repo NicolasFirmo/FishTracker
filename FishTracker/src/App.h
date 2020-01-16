@@ -6,17 +6,9 @@ class App : public wxApp
 private:
 	virtual bool OnInit() override;
 	void OnIdle(wxIdleEvent& evt);
-
-	void ShowFrameTime();
-
 public:
-	void activateRenderLoop(bool on);
+	void ActivateRenderLoop(bool on);
 private:
-	bool render_loop_on;
+	bool render_loop_on = false;
 	MainFrame* m_MainFrame;
-
-	std::chrono::time_point<std::chrono::steady_clock> m_OnIdleBeforeFrame;
-	std::chrono::time_point<std::chrono::steady_clock> m_OnIdleAfterFrame;
-};
-
-DECLARE_APP(App)
+}; DECLARE_APP(App)

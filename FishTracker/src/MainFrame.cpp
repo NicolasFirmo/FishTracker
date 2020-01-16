@@ -12,6 +12,7 @@ wxEND_EVENT_TABLE()
 
 MainFrame::MainFrame() : wxFrame(nullptr, wxID_ANY, "Fish Tracker", wxDefaultPosition, wxSize(320, 240), (wxDEFAULT_FRAME_STYLE & ~wxRESIZE_BORDER) | wxSTAY_ON_TOP)
 {
+	FT_FUNCTION_TIMER_STATUS(ft::microseconds);
 	CreateStatusBar();
 
 	m_LoadBtn = new wxButton(this, 10001, "Load Video");
@@ -39,7 +40,7 @@ void MainFrame::OnPlay(wxCommandEvent& evt)
 		wxLogInfo("There is no video loaded");
 		return;
 	}
-	wxGetApp().activateRenderLoop(true);
+	wxGetApp().ActivateRenderLoop(true);
 	m_VideoPlaying = true;
 	m_VideoFastFoward = false;
 }
@@ -51,7 +52,7 @@ void MainFrame::OnPause(wxCommandEvent& evt)
 		wxLogInfo("There is no video loaded");
 		return;
 	}
-	wxGetApp().activateRenderLoop(false);
+	wxGetApp().ActivateRenderLoop(false);
 	m_VideoPlaying = false;
 }
 
@@ -62,7 +63,7 @@ void MainFrame::OnFastFoward(wxCommandEvent& evt)
 		wxLogInfo("There is no video loaded");
 		return;
 	}
-	wxGetApp().activateRenderLoop(true);
+	wxGetApp().ActivateRenderLoop(true);
 	m_VideoPlaying = true;
 	m_VideoFastFoward = true;
 }
@@ -86,8 +87,6 @@ void MainFrame::Render()
 		if (m_VideoFastFoward)
 			return;
 
-
-
 		m_DeltaTime = (int)cv::getTickCount() - m_DeltaTime;
 		int deltaTimeMilli = m_FramePeriod - (m_DeltaTime >> FT_TICKFREQ_SHIFT);
 		if (deltaTimeMilli > 1)
@@ -99,7 +98,7 @@ void MainFrame::Render()
 void MainFrame::OnClose(wxCloseEvent& evt)
 {
 	cv::destroyAllWindows();
-	wxGetApp().activateRenderLoop(false);
+	wxGetApp().ActivateRenderLoop(false);
 	evt.Skip(); // don't stop event, we still want window to close
 }
 
@@ -125,11 +124,11 @@ void MainFrame::OnLoadVideo(wxCommandEvent& evt)
 
 	if (!m_Cap.isOpened())
 	{
-		wxLogError("ERROR! Unable to open camera");
+		wxLogError("Unable to open video!");
+		m_VideoLoaded = false;
 		return;
 	}
 
 	m_FramePeriod = (int)(1000.0 / m_Cap.get(cv::CAP_PROP_FPS));
-
 	m_VideoLoaded = true;
 }
