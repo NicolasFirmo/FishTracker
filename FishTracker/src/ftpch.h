@@ -25,5 +25,9 @@
 #include <unordered_set>
 
 // Vendor
+
+// OpenCV
 #include <opencv2/opencv.hpp>
+
+// wxWidgets
 #include <wx/wx.h>

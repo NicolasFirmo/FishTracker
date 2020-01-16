@@ -1,18 +1,11 @@
--ImShow or manage my own window? Manange with wxWidgets
+-Render video inside wxxWidgets or use imgui?
 -Make sure of optimization levels for debug and release
 -Know what are the other 2 configutations exactly
 -Get window close event
 -cerr<<
--[OK] Quanto tempo o mapa de calor aguenta rodar?
+-Quanto tempo o mapa de calor aguenta rodar?
 -Smart pointers (podem acabar de vez com os bugs)
--Play e pause na detecção
--Melhorar desempenho
--[OK] Multithread
--[OK] Organizar o programe e as classes em arquivos separados (como compilar?)
--Ajeitar os destrutores
--[OK] Ajeitar as transparências dos botões
--[OK] Ajeitar o escopo do slider
--Botões com texto
+-Play, pause and fastforward
 -[OK] Definir regiões com o mouse
 -Regiões de interesse, regiões de detecção
 -[OK] Sincronizar o tempo

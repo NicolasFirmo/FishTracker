@@ -1,84 +1,108 @@
-#include "MainFrame.h"
+#include "App.h"
 #include "Core.h"
 #include "Instrumentation/ScopeTimer.h"
 
 wxBEGIN_EVENT_TABLE(MainFrame, wxFrame)
-EVT_BUTTON(10001, MainFrame::OnButtonClickedEvent)
-EVT_BUTTON(10002, MainFrame::OnSave)
+EVT_CLOSE(MainFrame::OnClose)
+EVT_BUTTON(10001, MainFrame::OnLoadVideo)
+EVT_BUTTON(10002, MainFrame::OnPlay)
+EVT_BUTTON(10003, MainFrame::OnPause)
 wxEND_EVENT_TABLE()
 
-MainFrame::MainFrame() : wxFrame(nullptr, wxID_ANY, "Save Color"), m_ColorMat(cv::Mat(cv::Size(512, 512), CV_8UC3, cv::Scalar(255, 255, 255)))
+MainFrame::MainFrame() : wxFrame(nullptr, wxID_ANY, "Save Color")
 {
 	CreateStatusBar();
 
-	m_Btn1 = new wxButton(this, 10001, "Set Color");
-	m_Btn2 = new wxButton(this, 10002, "Save in a file");
-	m_Txt1 = new wxTextCtrl(this, wxID_ANY, "255,255,255");
+	m_LoadBtn = new wxButton(this, 10001, "Load Video");
+	m_PlayBtn = new wxButton(this, 10002, "Play");
+	m_PauseBtn = new wxButton(this, 10003, "Pause");
 
-	wxBoxSizer* sizer = new wxBoxSizer(wxVERTICAL);
+	wxBoxSizer* hSizer = new wxBoxSizer(wxHORIZONTAL);
+	wxBoxSizer* vSizer = new wxBoxSizer(wxVERTICAL);
 
-	sizer->Add(m_Btn1, 2, wxEXPAND | (wxALL & ~wxBOTTOM), 10);
-	sizer->Add(m_Txt1, 3, wxEXPAND | (wxALL & ~wxBOTTOM), 10);
-	sizer->Add(m_Btn2, 2, wxEXPAND | wxALL, 10);
+	hSizer->Add(m_PlayBtn, 1, wxEXPAND);
+	hSizer->Add(m_PauseBtn, 1, wxEXPAND);
+	vSizer->Add(m_LoadBtn, 1, wxEXPAND);
+	vSizer->Add(hSizer, 1, wxEXPAND);
 
-	this->SetSizer(sizer);
-	sizer->Layout();
+	this->SetSizer(vSizer);
+	vSizer->Layout();
 }
 
-MainFrame::~MainFrame()
+void MainFrame::OnPlay(wxCommandEvent& evt)
 {
-}
-
-void MainFrame::OnButtonClickedEvent(wxCommandEvent& e)
-{
-	ft::ScopeTimer t(this);
-	auto txt = m_Txt1->GetValue();
-	if ("" == txt)
-		return;
-
-	unsigned char rgb[3];
-	GetColor(rgb);
-	if (rgb)
-		m_ColorMat = cv::Mat(cv::Size(512, 512), CV_8UC3, cv::Scalar(rgb[2], rgb[1], rgb[0]));
-
-	cv::namedWindow("Test", cv::WINDOW_NORMAL | cv::WINDOW_KEEPRATIO | cv::WINDOW_GUI_NORMAL);
-	cv::imshow("Test", m_ColorMat);
-
-	e.Skip();
-}
-
-void MainFrame::OnSave(wxCommandEvent& e)
-{
-	wxFileDialog saveFileDialog(this, _("Imagem"), "", "",
-		"JPEG files (*.jpeg)|*.jpeg|PNG files (*.png)|*.png", wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
-
-	if (saveFileDialog.ShowModal() == wxID_CANCEL)
-		return; // the user changed idea...
-
-	auto filepath = (std::string)saveFileDialog.GetPath();
-	cv::imwrite(filepath, m_ColorMat);
-}
-
-void MainFrame::GetColor(unsigned char* rgb)
-{
-	std::string txt = (std::string)m_Txt1->GetValue();
-	if ("" == txt)
-	{
+	if (!m_VideoLoaded) {
+		wxLogInfo("There is no video loaded");
 		return;
 	}
-	int pos = 0;
-	for (int i = 0; i < 2; i++)
+	wxGetApp().activateRenderLoop(true);
+	m_VideoPlaying = true;
+}
+
+void MainFrame::OnPause(wxCommandEvent& evt)
+{
+	if (!m_VideoLoaded) {
+		wxLogInfo("There is no video loaded");
+		return;
+	}
+	wxGetApp().activateRenderLoop(false);
+	m_VideoPlaying = false;
+}
+
+void MainFrame::Render()
+{
+	if (m_VideoPlaying)
 	{
-		int endPos = txt.find(',', pos);
-		if (endPos == std::string::npos)
-		{
-			wxLogError("The color you choose is invalid! separete your rbg values with ',' (comma).");
-			rgb = nullptr;
+		m_Cap.read(m_VideoMat);
+		if (m_VideoMat.empty()) {
+			wxLogInfo("End of the video");
+			m_VideoPlaying = false;
+			m_VideoLoaded = false;
 			return;
 		}
-		rgb[i] = (unsigned char)std::stoi(txt.substr(pos, endPos - pos));
-		pos = endPos + 1;
+
+		cv::namedWindow("Video", cv::WINDOW_NORMAL | cv::WINDOW_KEEPRATIO | cv::WINDOW_GUI_NORMAL);
+		cv::imshow("Video", m_VideoMat);
+
+		m_DeltaTime = cv::getTickCount() - m_DeltaTime;
+		int deltaTimeMilli = m_VideoFPS - 6 - (int)(m_DeltaTime/10000);
+		cv::waitKey(deltaTimeMilli < 1 ? 1 : deltaTimeMilli);
+		m_DeltaTime = cv::getTickCount();
+	}
+}
+
+void MainFrame::OnClose(wxCloseEvent& evt)
+{
+	wxGetApp().activateRenderLoop(false);
+	evt.Skip(); // don't stop event, we still want window to close
+}
+
+void MainFrame::OnLoadVideo(wxCommandEvent& evt)
+{
+	//if (...current content has not been saved...)
+	//{
+	//	if (wxMessageBox(_("Current content has not been saved! Proceed?"), _("Please confirm"),
+	//		wxICON_QUESTION | wxYES_NO, this) == wxNO)
+	//		return;
+	//	//else: proceed asking to the user the new file to open
+	//}
+
+	wxFileDialog openFileDialog(this, _("Load video"), "", "",
+		"mp4 files (*.mp4)|*.mp4|All files (*.*)|*.*", wxFD_OPEN | wxFD_FILE_MUST_EXIST);
+
+	if (openFileDialog.ShowModal() == wxID_CANCEL)
+		return;     // the user changed idea...
+
+	// proceed loading the file chosen by the user;
+	// this can be done with e.g. wxWidgets input streams:
+	m_Cap = cv::VideoCapture((std::string)openFileDialog.GetPath());
+
+	if (!m_Cap.isOpened()) {
+		wxLogError("ERROR! Unable to open camera");
+		return;
 	}
 
-	rgb[2] = (char)std::stoi(txt.substr(pos));
+	m_VideoFPS = 1000 / m_Cap.get(cv::CAP_PROP_FPS);
+
+	m_VideoLoaded = true;
 }

@@ -4,21 +4,27 @@ class MainFrame : public wxFrame
 {
 public:
 	MainFrame();
-	~MainFrame();
+	void OnClose(wxCloseEvent& evt);
 
-	void OnButtonClickedEvent(wxCommandEvent &e);
-	void OnSave(wxCommandEvent &e);
+	void OnLoadVideo(wxCommandEvent& evt);
+	void OnPlay(wxCommandEvent& evt);
+	void OnPause(wxCommandEvent& evt);
 
+	void Render();
 public:
-	wxButton *m_Btn1 = nullptr;
-	wxButton *m_Btn2 = nullptr;
-	wxTextCtrl *m_Txt1 = nullptr;
-
-	std::ofstream m_Txtfile;
+	wxButton* m_LoadBtn = nullptr;
+	wxButton* m_PlayBtn = nullptr;
+	wxButton* m_PauseBtn = nullptr;
 
 	wxDECLARE_EVENT_TABLE();
-
 private:
-	cv::Mat m_ColorMat;
-	void GetColor(unsigned char *rgb);
+	cv::VideoCapture m_Cap;
+	cv::Mat m_VideoMat;
+
+	double m_DeltaTime = 0;
+
+	bool m_VideoLoaded = false;
+	bool m_VideoPlaying = false;
+
+	int m_VideoFPS;
 };
