@@ -28,7 +28,7 @@ void App::OnIdle(wxIdleEvent& evt)
 void App::ShowFrameTime()
 {
     auto duration = std::chrono::duration_cast<std::chrono::microseconds>(m_OnIdleAfterFrame - m_OnIdleBeforeFrame).count();
-    wxLogStatus("Frame duration: %lld (%3.2ffps)", duration, 1000000.0f/duration);
+    wxLogStatus("Frame duration: %lldus (%3.2ffps)", duration, 1000000.0f/duration);
 }
 
 void App::activateRenderLoop(bool on)
