@@ -23,8 +23,7 @@ private:
 	cv::VideoCapture m_Cap;
 	cv::Mat m_VideoMat;
 
-	int m_DeltaTime = 0;
-	int m_TickFreq = 1;
+	int m_DeltaTime = (int)cv::getTickCount();
 
 	bool m_VideoLoaded = false;
 	bool m_VideoPlaying = false;

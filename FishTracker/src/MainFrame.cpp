@@ -14,8 +14,6 @@ MainFrame::MainFrame() : wxFrame(nullptr, wxID_ANY, "Fish Tracker", wxDefaultPos
 {
 	CreateStatusBar();
 
-	m_TickFreq = (int)cv::getTickFrequency() / 1000;
-
 	m_LoadBtn = new wxButton(this, 10001, "Load Video");
 	m_PlayBtn = new wxButton(this, 10002, "Play");
 	m_PauseBtn = new wxButton(this, 10003, "Pause");
@@ -88,8 +86,10 @@ void MainFrame::Render()
 		if (m_VideoFastFoward)
 			return;
 
+
+
 		m_DeltaTime = (int)cv::getTickCount() - m_DeltaTime;
-		int deltaTimeMilli = m_FramePeriod - m_DeltaTime / m_TickFreq;
+		int deltaTimeMilli = m_FramePeriod - (m_DeltaTime >> FT_TICKFREQ_SHIFT);
 		if (deltaTimeMilli > 1)
 			cv::waitKey(deltaTimeMilli);
 		m_DeltaTime = (int)cv::getTickCount();
@@ -114,7 +114,7 @@ void MainFrame::OnLoadVideo(wxCommandEvent& evt)
 	//}
 
 	wxFileDialog openFileDialog(this, _("Load video"), "", "",
-															"mp4 files (*.mp4)|*.mp4|All files (*.*)|*.*", wxFD_OPEN | wxFD_FILE_MUST_EXIST);
+		"mp4 files (*.mp4)|*.mp4|All files (*.*)|*.*", wxFD_OPEN | wxFD_FILE_MUST_EXIST);
 
 	if (openFileDialog.ShowModal() == wxID_CANCEL)
 		return; // the user changed idea...
@@ -129,7 +129,7 @@ void MainFrame::OnLoadVideo(wxCommandEvent& evt)
 		return;
 	}
 
-	m_FramePeriod = 1000 / m_Cap.get(cv::CAP_PROP_FPS);
+	m_FramePeriod = (int)(1000.0 / m_Cap.get(cv::CAP_PROP_FPS));
 
 	m_VideoLoaded = true;
 }
