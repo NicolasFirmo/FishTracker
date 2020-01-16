@@ -10,11 +10,11 @@ EVT_BUTTON(10003, MainFrame::OnPause)
 EVT_BUTTON(10004, MainFrame::OnFastFoward)
 wxEND_EVENT_TABLE()
 
-MainFrame::MainFrame() : wxFrame(nullptr, wxID_ANY, "Fish Tracker")
+MainFrame::MainFrame() : wxFrame(nullptr, wxID_ANY, "Fish Tracker", wxDefaultPosition, wxSize(320, 240), (wxDEFAULT_FRAME_STYLE & ~wxRESIZE_BORDER) | wxSTAY_ON_TOP)
 {
 	CreateStatusBar();
 
-	m_TickFreq = (int)cv::getTickFrequency() / (1000 + 333);
+	m_TickFreq = (int)cv::getTickFrequency() / 1000;
 
 	m_LoadBtn = new wxButton(this, 10001, "Load Video");
 	m_PlayBtn = new wxButton(this, 10002, "Play");
@@ -27,7 +27,7 @@ MainFrame::MainFrame() : wxFrame(nullptr, wxID_ANY, "Fish Tracker")
 	hSizer->Add(m_PlayBtn, 1, wxEXPAND);
 	hSizer->Add(m_PauseBtn, 1, wxEXPAND);
 	hSizer->Add(m_FastFowardBtn, 1, wxEXPAND);
-	vSizer->Add(m_LoadBtn, 1, wxEXPAND);
+	vSizer->Add(m_LoadBtn, 3, wxEXPAND | wxALL, 30);
 	vSizer->Add(hSizer, 1, wxEXPAND);
 
 	this->SetSizer(vSizer);
@@ -114,7 +114,7 @@ void MainFrame::OnLoadVideo(wxCommandEvent& evt)
 	//}
 
 	wxFileDialog openFileDialog(this, _("Load video"), "", "",
-		"mp4 files (*.mp4)|*.mp4|All files (*.*)|*.*", wxFD_OPEN | wxFD_FILE_MUST_EXIST);
+															"mp4 files (*.mp4)|*.mp4|All files (*.*)|*.*", wxFD_OPEN | wxFD_FILE_MUST_EXIST);
 
 	if (openFileDialog.ShowModal() == wxID_CANCEL)
 		return; // the user changed idea...
