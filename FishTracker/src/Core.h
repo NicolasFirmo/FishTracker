@@ -12,7 +12,7 @@
 #elif FT_PLATFORM_LINUX
 	#include <csignal>
 	#define DEBUG_BREAK raise(SIGTRAP);
-	const int FT_TICKFREQ_SHIFT = 20;
+	const int FT_TICKFREQ_SHIFT = 21;
 #else
 	#error FishTracker only suports Windows and Linux for now!
 #endif // FT_PLATFORM

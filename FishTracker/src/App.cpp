@@ -1,12 +1,10 @@
 #include "App.h"
 
-namespace ft {
-
 	wxIMPLEMENT_APP(App);
 
 	bool App::OnInit()
 	{
-		m_MainFrame = new MainFrame();
+		m_MainFrame = new ft::MainFrame();
 		m_MainFrame->Show();
 
 		return true;
@@ -14,7 +12,7 @@ namespace ft {
 
 	void App::OnIdle(wxIdleEvent& evt)
 	{
-		if (render_loop_on)
+		if (m_RenderLoopOn)
 		{
 			m_MainFrame->m_FishFrame->m_Panel->PaintNow();
 			m_MainFrame->m_FishFrame->Run();
@@ -24,16 +22,14 @@ namespace ft {
 
 	void App::ActivateRenderLoop(bool on)
 	{
-		if (on && !render_loop_on)
+		if (on && !m_RenderLoopOn)
 		{
 			Connect(wxID_ANY, wxEVT_IDLE, wxIdleEventHandler(App::OnIdle));
-			render_loop_on = true;
+			m_RenderLoopOn = true;
 		}
-		else if (!on && render_loop_on)
+		else if (!on && m_RenderLoopOn)
 		{
 			Disconnect(wxEVT_IDLE, wxIdleEventHandler(App::OnIdle));
-			render_loop_on = false;
+			m_RenderLoopOn = false;
 		}
 	}
-
-}

@@ -1,7 +1,8 @@
--Render video inside wxxWidgets or use imgui? Fuck it, done everything inside wxxWidgets!
+-Set up OpenCV and wxWidgets license requirementes in this repo
+-Render video inside wxWidgets or use imgui? Fuck it, done everything inside wxWidgets!
 -Make sure of optimization levels for debug and release
 -Know what are the other 2 configutations exactly
--Get window close event
+-[OK] Get window close event
 -Quanto tempo o mapa de calor aguenta rodar?
 -Smart pointers (podem acabar de vez com os bugs)
 -[OK] Play, pause and fastforward

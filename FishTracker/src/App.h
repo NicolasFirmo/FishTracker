@@ -1,8 +1,6 @@
 #pragma once
 #include "MainFrame.h"
 
-namespace ft {
-
 	class App : public wxApp
 	{
 	private:
@@ -11,8 +9,6 @@ namespace ft {
 	public:
 		void ActivateRenderLoop(bool on);
 	private:
-		bool render_loop_on = false;
-		MainFrame* m_MainFrame;
+		bool m_RenderLoopOn = false;
+		ft::MainFrame* m_MainFrame;
 	}; DECLARE_APP(App)
-
-}
