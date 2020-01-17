@@ -17,4 +17,4 @@ namespace ft {
 		wxDECLARE_EVENT_TABLE();
 	};
 
-}
+} // namespace ft

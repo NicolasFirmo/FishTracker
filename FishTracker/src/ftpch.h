@@ -27,7 +27,9 @@
 // Vendor
 
 // OpenCV
-#include <opencv2/opencv.hpp>
+#include <opencv2/core.hpp>
+#include <opencv2/videoio.hpp>
+#include <opencv2/imgproc.hpp>
 
 // wxWidgets
 #include <wx/wx.h>

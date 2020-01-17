@@ -6,10 +6,6 @@ if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE Debug)
 endif()
 
-if(NOT FT_WINDOWS_VERSION)
-  set(FT_WINDOWS_VERSION 10)
-endif()
-
 project(FishTracker VERSION 0.1.0)
 
 find_package (Threads)

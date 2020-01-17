@@ -1,14 +1,14 @@
 #include "App.h"
 #include "Instrumentation/ScopeTimer.h"
 
+wxBEGIN_EVENT_TABLE(ft::MainFrame, wxFrame)
+EVT_CLOSE(ft::MainFrame::OnClose)
+EVT_BUTTON(10001, ft::MainFrame::OnLoadVideo)
+wxEND_EVENT_TABLE()
+
 namespace ft {
 
-	wxBEGIN_EVENT_TABLE(MainFrame, wxFrame)
-		EVT_CLOSE(MainFrame::OnClose)
-		EVT_BUTTON(10001, MainFrame::OnLoadVideo)
-		wxEND_EVENT_TABLE()
-
-		MainFrame::MainFrame() : wxFrame(nullptr, wxID_ANY, "Fish Tracker", wxDefaultPosition, wxSize(320, 240), wxDEFAULT_FRAME_STYLE & ~wxRESIZE_BORDER)
+	MainFrame::MainFrame() : wxFrame(nullptr, wxID_ANY, "Fish Tracker", wxDefaultPosition, wxSize(320, 240), wxDEFAULT_FRAME_STYLE & ~wxRESIZE_BORDER)
 	{
 		m_LoadBtn = new wxButton(this, 10001, "Load Video");
 
@@ -55,4 +55,4 @@ namespace ft {
 		m_FishFrame->Show();
 	}
 
-}
+} // namespace ft
