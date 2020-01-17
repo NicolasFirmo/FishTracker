@@ -1,33 +1,20 @@
 #pragma once
+#include "FishFrame.h"
 
-class MainFrame : public wxFrame
-{
-public:
-	MainFrame();
-	void OnClose(wxCloseEvent& evt);
+namespace ft {
 
-	void OnLoadVideo(wxCommandEvent& evt);
-	void OnPlay(wxCommandEvent& evt);
-	void OnPause(wxCommandEvent& evt);
-	void OnFastFoward(wxCommandEvent& evt);
+	class MainFrame : public wxFrame
+	{
+	public:
+		MainFrame();
+		void OnClose(wxCloseEvent& evt);
 
-	void Render();
-public:
-	wxButton* m_LoadBtn = nullptr;
-	wxButton* m_PlayBtn = nullptr;
-	wxButton* m_PauseBtn = nullptr;
-	wxButton* m_FastFowardBtn = nullptr;
+		void OnLoadVideo(wxCommandEvent& evt);
+	public:
+		FishFrame* m_FishFrame;
+		wxButton* m_LoadBtn = nullptr;
 
-	wxDECLARE_EVENT_TABLE();
-private:
-	cv::VideoCapture m_Cap;
-	cv::Mat m_VideoMat;
+		wxDECLARE_EVENT_TABLE();
+	};
 
-	int m_DeltaTime = (int)cv::getTickCount();
-
-	bool m_VideoLoaded = false;
-	bool m_VideoPlaying = false;
-	bool m_VideoFastFoward = false;
-
-	int m_FramePeriod;
-};
+}

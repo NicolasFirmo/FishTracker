@@ -27,4 +27,5 @@ namespace ft {
 		auto duration = std::chrono::duration_cast<D>(endTimePoint - m_StartTimePoint).count();
 		m_Os << m_ScopeName << " Took: " << (int)duration << TimeUnity::value();
 	}
+
 }

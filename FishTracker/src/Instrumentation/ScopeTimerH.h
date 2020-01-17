@@ -15,7 +15,7 @@ namespace ft {
 	class ScopeTimerStatus
 	{
 	public:
-		ScopeTimerStatus(const char* scopeName, wxFrame* frame = nullptr);
+		ScopeTimerStatus(const char* scopeName = "Scope", wxFrame* frame = nullptr);
 		~ScopeTimerStatus();
 	private:
 		const char* m_ScopeName;
@@ -35,7 +35,7 @@ namespace ft {
 	class ScopeTimerOStream
 	{
 	public:
-		ScopeTimerOStream(const char* scopeName, std::ostream& os);
+		ScopeTimerOStream(const char* scopeName = "Scope", std::ostream& os = std::cout);
 		~ScopeTimerOStream();
 	private:
 		const char* m_ScopeName;
@@ -50,6 +50,7 @@ namespace ft {
 	template<>struct ScopeTimerOStream<seconds>::TimeUnity { static constexpr const char* value() { return "s\n"; } };
 	template<>struct ScopeTimerOStream<minutes>::TimeUnity { static constexpr const char* value() { return "m\n"; } };
 	template<>struct ScopeTimerOStream<hours>::TimeUnity { static constexpr const char* value() { return "h\n"; } };
+
 }
 
 #define FT_PROFILE 1
@@ -76,6 +77,6 @@ namespace ft {
 #endif
 
 #define FT_FUNCTION_TIMER_STATUS(duration,...) ft::ScopeTimerStatus<duration> timer##__LINE__(FT_FUNC_SIG,__VA_ARGS__)
-#define FT_FUNCTION_TIMER_OSTREAM(duration,os) ft::ScopeTimerOStream<duration> timer##__LINE__(FT_FUNC_SIG,os)
+#define FT_FUNCTION_TIMER_OSTREAM(duration,...) ft::ScopeTimerOStream<duration> timer##__LINE__(FT_FUNC_SIG,__VA_ARGS__)
 
 #endif // FT_PROFILE
