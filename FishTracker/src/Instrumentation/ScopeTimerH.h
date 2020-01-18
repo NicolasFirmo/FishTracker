@@ -51,7 +51,7 @@ namespace ft {
 	template<>struct ScopeTimerOStream<minutes>::TimeUnity { static constexpr const char* value() { return "m\n"; } };
 	template<>struct ScopeTimerOStream<hours>::TimeUnity { static constexpr const char* value() { return "h\n"; } };
 
-}
+} // namespace ft
 
 #define FT_PROFILE 1
 #if FT_PROFILE
@@ -76,7 +76,7 @@ namespace ft {
 #define FT_FUNC_SIG "FT_FUNC_SIG unknown!"
 #endif
 
-#define FT_FUNCTION_TIMER_STATUS(duration,...) ft::ScopeTimerStatus<duration> timer##__LINE__(FT_FUNC_SIG,__VA_ARGS__)
-#define FT_FUNCTION_TIMER_OSTREAM(duration,...) ft::ScopeTimerOStream<duration> timer##__LINE__(FT_FUNC_SIG,__VA_ARGS__)
+#define FT_FUNCTION_TIMER_STATUS(duration,...) ScopeTimerStatus<duration> timer##__LINE__(FT_FUNC_SIG,__VA_ARGS__)
+#define FT_FUNCTION_TIMER_OSTREAM(duration,...) ScopeTimerOStream<duration> timer##__LINE__(FT_FUNC_SIG,__VA_ARGS__)
 
 #endif // FT_PROFILE

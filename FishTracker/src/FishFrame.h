@@ -1,64 +1,47 @@
 #pragma once
+#include "FishPanel.h"
 
-namespace ft
-{
-
-	class FishFramePanel;
+namespace ft {
 
 	class FishFrame : public wxFrame
 	{
 	public:
 		FishFrame(const std::string& videoPath);
-		inline bool Opened() const { return m_VideoAvaliable; }
 		~FishFrame();
 		void OnClose(wxCloseEvent& evt);
+
+		inline bool Opened() const { return m_VideoAvaliable; }
+		void Run();
 
 		void OnPlay(wxCommandEvent& evt);
 		void OnPause(wxCommandEvent& evt);
 		void OnFastFoward(wxCommandEvent& evt);
-
-		void Run();
-
-		wxDECLARE_EVENT_TABLE();
 	public:
-		FishFramePanel* m_Panel;
+		FishPanel* m_Panel = nullptr;
 
 		wxButton* m_PlayBtn = nullptr;
 		wxButton* m_PauseBtn = nullptr;
+		wxButton* m_Start = nullptr;
+		wxButton* m_Stop = nullptr;
 		wxButton* m_FastFowardBtn = nullptr;
 
 		cv::Mat m_CapFrame;
-	private:
+	protected:
+		std::thread* m_FishThread = nullptr;
+
 		cv::VideoCapture m_Cap;
 		cv::Size m_FrameSize;
 
-		int m_Width;
-		int m_Height;
-
-		inline unsigned long getTickCount() { return std::chrono::duration_cast<std::chrono::duration<unsigned long, std::milli>>(std::chrono::steady_clock::now().time_since_epoch()).count(); }
-		unsigned long m_FrameDuration;
-		unsigned long m_DeltaTime = getTickCount();
+		std::chrono::nanoseconds m_VideoFrameDuration;
+		std::chrono::nanoseconds m_SleepDuration;
+		std::chrono::time_point<std::chrono::high_resolution_clock> m_FrameTimePoint;
+		std::chrono::time_point<std::chrono::high_resolution_clock> m_SleepTimePoint;
 
 		bool m_VideoAvaliable = false;
 		bool m_VideoPlaying = false;
 		bool m_VideoFastFoward = false;
-	};
 
-	class FishFramePanel : public wxPanel
-	{
-	public:
-		FishFramePanel(FishFrame* parent);
-
-		void PaintEvent(wxPaintEvent& evt);
-		void PaintNow();
-
-		DECLARE_EVENT_TABLE()
-	private:
-		void PaintFunction(wxDC& dc);
-	private:
-		cv::Mat m_CapFrame;
-		cv::Mat m_ColorCorrected;
-		cv::Mat m_SizeCorrected;
+		wxDECLARE_EVENT_TABLE();
 	};
 
 } // namespace ft

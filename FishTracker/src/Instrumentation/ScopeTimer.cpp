@@ -28,4 +28,4 @@ namespace ft {
 		m_Os << m_ScopeName << " Took: " << (int)duration << TimeUnity::value();
 	}
 
-}
+} // namespace ft
