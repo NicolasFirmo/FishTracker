@@ -1,9 +1,10 @@
 // Standart
 #include <iostream>
 #include <memory>
-#include <utility>
-#include <functional>
 #include <thread>
+#include <functional>
+#include <utility>
+#include <algorithm>
 #include <iomanip>
 #include <chrono>
 #include <cmath>

@@ -2,6 +2,7 @@
 #include "IDs.h"
 #include "FishFrame.h"
 #include "Instrumentation/ScopeTimer.h"
+#include "Instrumentation/Profile.h"
 
 wxBEGIN_EVENT_TABLE(ft::FishFrame, wxFrame)
 EVT_CLOSE(ft::FishFrame::OnClose)
@@ -15,6 +16,7 @@ namespace ft {
 	FishFrame::FishFrame(const std::string& videoPath) : wxFrame(nullptr, wxID_ANY, "Inspector", wxDefaultPosition, wxDefaultSize, wxDEFAULT_FRAME_STYLE & ~wxRESIZE_BORDER),
 		m_Cap(videoPath), m_SleepDuration(std::chrono::microseconds(0)), m_FrameTimePoint(std::chrono::high_resolution_clock::now()), m_SleepTimePoint(std::chrono::high_resolution_clock::now())
 	{
+		FT_PROFILE_FUNCTION();
 		if (m_Cap.isOpened())
 		{
 			m_VideoAvaliable = true;
@@ -62,11 +64,16 @@ namespace ft {
 
 	void FishFrame::Run()
 	{
+		FT_PROFILE_FUNCTION();
 		while (m_VideoAvaliable)
 			if (m_VideoPlaying)
 			{
+				FT_PROFILE_SCOPE("Run: Frame");
 				FT_FUNCTION_TIMER_STATUS(microseconds, this);
-				m_Cap.read(m_CapFrame); // Main Bottleneck
+				{
+					FT_PROFILE_SCOPE("Run: m_Cap.read(m_CapFrame);");
+					m_Cap.read(m_CapFrame); // Main Bottleneck
+				}
 				if (m_CapFrame.empty())
 				{
 					wxLogInfo("End of the video");
@@ -77,11 +84,13 @@ namespace ft {
 
 				if (m_VideoFastFoward)
 					continue;
-
-				m_SleepDuration = m_VideoFrameDuration - (std::chrono::high_resolution_clock::now() - m_FrameTimePoint) - ((m_FrameTimePoint - m_SleepTimePoint) - m_SleepDuration);
-				m_SleepTimePoint = std::chrono::high_resolution_clock::now();
-				std::this_thread::sleep_for(m_SleepDuration);
-				m_FrameTimePoint = std::chrono::high_resolution_clock::now();
+				{
+					FT_PROFILE_SCOPE("Run: Sleeping");
+					m_SleepDuration = m_VideoFrameDuration - (std::chrono::high_resolution_clock::now() - m_FrameTimePoint) - ((m_FrameTimePoint - m_SleepTimePoint) - m_SleepDuration);
+					m_SleepTimePoint = std::chrono::high_resolution_clock::now();
+					std::this_thread::sleep_for(m_SleepDuration);
+					m_FrameTimePoint = std::chrono::high_resolution_clock::now();
+				}
 			}
 			else
 				std::this_thread::sleep_for(std::chrono::microseconds(100));
@@ -89,6 +98,7 @@ namespace ft {
 
 	void FishFrame::OnClose(wxCloseEvent& evt)
 	{
+		FT_PROFILE_FUNCTION();
 		m_VideoAvaliable = false;
 
 		m_FishThread->join();
@@ -102,6 +112,7 @@ namespace ft {
 
 	void FishFrame::OnPlay(wxCommandEvent& evt)
 	{
+		FT_PROFILE_FUNCTION();
 		if (!m_VideoAvaliable)
 		{
 			wxLogInfo("There is no video loaded");
@@ -115,6 +126,7 @@ namespace ft {
 	}
 	void FishFrame::OnPause(wxCommandEvent& evt)
 	{
+		FT_PROFILE_FUNCTION();
 		if (!m_VideoAvaliable)
 		{
 			wxLogInfo("There is no video loaded");
@@ -125,6 +137,7 @@ namespace ft {
 	}
 	void FishFrame::OnFastFoward(wxCommandEvent& evt)
 	{
+		FT_PROFILE_FUNCTION();
 		if (!m_VideoAvaliable)
 		{
 			wxLogInfo("There is no video loaded");

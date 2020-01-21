@@ -1,5 +1,5 @@
 #pragma once
-#include "../Core.h"
+#include "Macros.h"
 
 namespace ft {
 
@@ -53,30 +53,11 @@ namespace ft {
 
 } // namespace ft
 
-#define FT_PROFILE 1
-#if FT_PROFILE
-// Resolve which function signature macro will be used. Note that this only
-// is resolved when the (pre)compiler starts, so the syntax highlighting
-// could mark the wrong one in your editor!
-#if defined(__GNUC__) || (defined(__MWERKS__) && (__MWERKS__ >= 0x3000)) || (defined(__ICC) && (__ICC >= 600)) || defined(__ghs__)
-#define FT_FUNC_SIG __PRETTY_FUNCTION__
-#elif defined(__DMC__) && (__DMC__ >= 0x810)
-#define FT_FUNC_SIG __PRETTY_FUNCTION__
-#elif defined(__FUNCSIG__)
-#define FT_FUNC_SIG __FUNCSIG__
-#elif (defined(__INTEL_COMPILER) && (__INTEL_COMPILER >= 600)) || (defined(__IBMCPP__) && (__IBMCPP__ >= 500))
-#define FT_FUNC_SIG __FUNCTION__
-#elif defined(__BORLANDC__) && (__BORLANDC__ >= 0x550)
-#define FT_FUNC_SIG __FUNC__
-#elif defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 199901)
-#define FT_FUNC_SIG __func__
-#elif defined(__cplusplus) && (__cplusplus >= 201103)
-#define FT_FUNC_SIG __func__
+#define FT_TIMER 1
+#if FT_TIMER
+#define FT_FUNCTION_TIMER_STATUS(duration,...) ::ft::ScopeTimerStatus<duration> timer##__LINE__(FT_FUNC_SIG,__VA_ARGS__)
+#define FT_FUNCTION_TIMER_OSTREAM(duration,...) ::ft::ScopeTimerOStream<duration> timer##__LINE__(FT_FUNC_SIG,__VA_ARGS__)
 #else
-#define FT_FUNC_SIG "FT_FUNC_SIG unknown!"
-#endif
-
-#define FT_FUNCTION_TIMER_STATUS(duration,...) ScopeTimerStatus<duration> timer##__LINE__(FT_FUNC_SIG,__VA_ARGS__)
-#define FT_FUNCTION_TIMER_OSTREAM(duration,...) ScopeTimerOStream<duration> timer##__LINE__(FT_FUNC_SIG,__VA_ARGS__)
-
-#endif // FT_PROFILE
+#define FT_FUNCTION_TIMER_STATUS(duration,...) 
+#define FT_FUNCTION_TIMER_OSTREAM(duration,...)
+#endif // FT_TIMER
