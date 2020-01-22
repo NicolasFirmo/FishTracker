@@ -9,6 +9,7 @@ namespace ft {
 		FishFrame(const std::string& videoPath);
 		~FishFrame();
 		void OnClose(wxCloseEvent& evt);
+		void OnSize(wxSizeEvent& evt);
 
 		inline bool Opened() const { return m_VideoAvaliable; }
 		void Run();
@@ -17,7 +18,7 @@ namespace ft {
 		void OnPause(wxCommandEvent& evt);
 		void OnFastFoward(wxCommandEvent& evt);
 	public:
-		FishPanel* m_Panel = nullptr;
+		FishPanel* m_FishPanel = nullptr;
 
 		wxButton* m_PlayBtn = nullptr;
 		wxButton* m_PauseBtn = nullptr;
@@ -25,12 +26,13 @@ namespace ft {
 		wxButton* m_Stop = nullptr;
 		wxButton* m_FastFowardBtn = nullptr;
 
+		cv::VideoCapture m_Cap;
 		cv::Mat m_CapFrame;
+		cv::Size m_OriginalFrameSize;
+		wxSize m_CurrentFrameSize;
+		bool m_ResizeHandled = false;
 	protected:
 		std::thread* m_FishThread = nullptr;
-
-		cv::VideoCapture m_Cap;
-		cv::Size m_FrameSize;
 
 		std::chrono::nanoseconds m_VideoFrameDuration;
 		std::chrono::nanoseconds m_SleepDuration;

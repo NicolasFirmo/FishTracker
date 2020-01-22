@@ -18,7 +18,7 @@ namespace ft {
 		wxBoxSizer* Sizer = new wxBoxSizer(wxHORIZONTAL);
 		Sizer->Add(m_LoadBtn, 1, wxEXPAND);
 
-		this->SetSizer(Sizer);
+		SetSizer(Sizer);
 		Sizer->Layout();
 	}
 

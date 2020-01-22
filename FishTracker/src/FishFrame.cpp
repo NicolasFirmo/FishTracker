@@ -6,34 +6,50 @@
 
 wxBEGIN_EVENT_TABLE(ft::FishFrame, wxFrame)
 EVT_CLOSE(ft::FishFrame::OnClose)
+EVT_SIZE(ft::FishFrame::OnSize)
 EVT_BUTTON(FT_ID_PLAY, ft::FishFrame::OnPlay)
 EVT_BUTTON(FT_ID_PAUSE, ft::FishFrame::OnPause)
 EVT_BUTTON(FT_ID_FASTFOWARD, ft::FishFrame::OnFastFoward)
 wxEND_EVENT_TABLE()
 
-namespace ft {
+namespace ft
+{
 
-	FishFrame::FishFrame(const std::string& videoPath) : wxFrame(nullptr, wxID_ANY, "Inspector", wxDefaultPosition, wxDefaultSize, wxDEFAULT_FRAME_STYLE & ~wxRESIZE_BORDER),
+	FishFrame::FishFrame(const std::string& videoPath) : wxFrame(nullptr, wxID_ANY, "Inspector", wxDefaultPosition, wxDefaultSize, wxDEFAULT_FRAME_STYLE),
 		m_Cap(videoPath), m_SleepDuration(std::chrono::microseconds(0)), m_FrameTimePoint(std::chrono::high_resolution_clock::now()), m_SleepTimePoint(std::chrono::high_resolution_clock::now())
 	{
 		FT_PROFILE_FUNCTION();
 		if (m_Cap.isOpened())
 		{
-			m_VideoAvaliable = true;
 			CreateStatusBar();
 
 			m_Cap.read(m_CapFrame);
 
 			m_VideoFrameDuration = std::chrono::nanoseconds((long long)(1000000000.0 / m_Cap.get(cv::CAP_PROP_FPS)));
-			m_FrameSize.width = (int)m_Cap.get(cv::CAP_PROP_FRAME_WIDTH) / 2;
-			m_FrameSize.height = (int)m_Cap.get(cv::CAP_PROP_FRAME_HEIGHT) / 2;
+			m_OriginalFrameSize.width = (int)m_Cap.get(cv::CAP_PROP_FRAME_WIDTH);
+			m_OriginalFrameSize.height = (int)m_Cap.get(cv::CAP_PROP_FRAME_HEIGHT);
+			int displayWidth, displayHeight;
+			wxDisplaySize(&displayWidth, &displayHeight);
+			if (m_OriginalFrameSize.width < (displayWidth) && m_OriginalFrameSize.height < (displayHeight - 50))
+			{
+				m_CurrentFrameSize.SetWidth(m_OriginalFrameSize.width);
+				m_CurrentFrameSize.SetHeight(m_OriginalFrameSize.height);
+			}
+			else if (m_OriginalFrameSize.width < (displayWidth * 2) && m_OriginalFrameSize.height < (displayHeight * 2 - 50))
+			{
+				m_CurrentFrameSize.SetWidth(m_OriginalFrameSize.width / 2);
+				m_CurrentFrameSize.SetHeight(m_OriginalFrameSize.height / 2);
+			}
+			else
+			{
+				m_CurrentFrameSize.SetWidth(m_OriginalFrameSize.width / 4);
+				m_CurrentFrameSize.SetHeight(m_OriginalFrameSize.height / 4);
+			}
 
-			m_Panel = new FishPanel(this);
-			m_Panel->SetSize(wxSize(m_FrameSize.width, m_FrameSize.height));
-
-			m_PlayBtn = new wxButton(this, FT_ID_PLAY, "Play");
-			m_PauseBtn = new wxButton(this, FT_ID_PAUSE, "Pause");
-			m_FastFowardBtn = new wxButton(this, FT_ID_FASTFOWARD, "Fast Foward");
+			m_FishPanel = new FishPanel(this);
+			m_PlayBtn = new wxButton(this, FT_ID_PLAY, "PLAY", wxDefaultPosition, wxSize(30, 30));
+			m_PauseBtn = new wxButton(this, FT_ID_PAUSE, "PAUSE", wxDefaultPosition, wxSize(30, 30));
+			m_FastFowardBtn = new wxButton(this, FT_ID_FASTFOWARD, "FF", wxDefaultPosition, wxSize(30, 30));
 
 			wxBoxSizer* hSizer = new wxBoxSizer(wxHORIZONTAL);
 			wxBoxSizer* vSizer = new wxBoxSizer(wxVERTICAL);
@@ -41,14 +57,17 @@ namespace ft {
 			hSizer->Add(m_PlayBtn, 1, wxEXPAND);
 			hSizer->Add(m_PauseBtn, 1, wxEXPAND);
 			hSizer->Add(m_FastFowardBtn, 1, wxEXPAND);
-			vSizer->Add(m_Panel, m_FrameSize.height + 30, wxEXPAND);
-			vSizer->Add(hSizer, 30, wxEXPAND);
+			vSizer->Add(m_FishPanel, 1, wxEXPAND);
+			vSizer->Add(hSizer, 0, wxEXPAND);
 
-			SetSize(GetEffectiveMinSize() + wxSize(0, 30));
-			this->SetSizer(vSizer);
+			SetSizer(vSizer);
 			vSizer->Layout();
 
+			wxSize frameSize = m_CurrentFrameSize + wxSize(0, 30);
+			SetClientSize(frameSize);
 			m_FishThread = new std::thread(&FishFrame::Run, this);
+
+			m_VideoAvaliable = true;
 		}
 	}
 	FishFrame::~FishFrame()
@@ -108,6 +127,18 @@ namespace ft {
 
 		Destroy();
 		evt.Skip(); // don't stop event, we still want window to close
+	}
+
+	void ft::FishFrame::OnSize(wxSizeEvent& evt)
+	{
+		FT_PROFILE_FUNCTION();
+		if (!m_VideoAvaliable)
+			return;
+
+		m_ResizeHandled = false;
+		m_FishPanel->PaintNow();
+
+		evt.Skip();
 	}
 
 	void FishFrame::OnPlay(wxCommandEvent& evt)

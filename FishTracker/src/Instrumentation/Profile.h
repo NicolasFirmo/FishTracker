@@ -156,4 +156,4 @@ namespace ft {
 #define FT_PROFILE_END_SESSION()
 #define FT_PROFILE_SCOPE(name)
 #define FT_PROFILE_FUNCTION()
-#endif FT_PROFILE
+#endif // FT_PROFILE

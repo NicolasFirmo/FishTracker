@@ -12,6 +12,7 @@ CMakeFiles/
 x64/
 
 # Files
+*result.json
 *.user
 imgui.ini
 *.vc*

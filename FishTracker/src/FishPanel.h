@@ -16,9 +16,12 @@ namespace ft {
 	private:
 		void PaintFunction(wxDC& dc);
 	private:
-		cv::Mat m_CapFrame;
+		FishFrame* m_FishFrame;
 		cv::Mat m_ColorCorrected;
 		cv::Mat m_SizeCorrected;
+
+		int m_FrameTopCoord;
+		int m_FrameLeftCoord;
 	};
 
 } // namespace ft

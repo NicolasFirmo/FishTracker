@@ -20,7 +20,7 @@ namespace ft {
 	{
 		FT_PROFILE_FUNCTION();
 		if (m_RenderLoopOn)
-			m_MainFrame->m_FishFrame->m_Panel->PaintNow();
+			m_MainFrame->m_FishFrame->m_FishPanel->PaintNow();
 	}
 
 	void App::ActivateRenderLoop(bool on)
