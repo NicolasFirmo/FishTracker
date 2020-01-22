@@ -34,7 +34,8 @@ namespace ft {
 		double minorDimensionFactor = newWidthFactor < newHeightFactor ? newWidthFactor : newHeightFactor;
 		{
 			FT_PROFILE_SCOPE("PaintFunction: OpenCV Mat Transformations");
-			cv::cvtColor(m_FishFrame->m_CapFrame, m_ColorCorrected, cv::COLOR_BGR2RGB);
+			if (!(m_FishFrame->m_CapFrame.empty()))
+				cv::cvtColor(m_FishFrame->m_CapFrame, m_ColorCorrected, cv::COLOR_BGR2RGB);
 			cv::resize(m_ColorCorrected, m_SizeCorrected, cv::Size(), minorDimensionFactor, minorDimensionFactor);
 		}
 		{

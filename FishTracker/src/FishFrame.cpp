@@ -65,6 +65,7 @@ namespace ft
 
 			wxSize frameSize = m_CurrentFrameSize + wxSize(0, 30);
 			SetClientSize(frameSize);
+			SetMinClientSize(GetMinClientSize() + wxSize(0, 40));
 			m_FishThread = new std::thread(&FishFrame::Run, this);
 
 			m_VideoAvaliable = true;
@@ -96,6 +97,7 @@ namespace ft
 				if (m_CapFrame.empty())
 				{
 					wxLogInfo("End of the video");
+					wxGetApp().ActivateRenderLoop(false);
 					m_VideoPlaying = false;
 					m_VideoAvaliable = false;
 					return;
@@ -132,8 +134,6 @@ namespace ft
 	void ft::FishFrame::OnSize(wxSizeEvent& evt)
 	{
 		FT_PROFILE_FUNCTION();
-		if (!m_VideoAvaliable)
-			return;
 
 		m_ResizeHandled = false;
 		m_FishPanel->PaintNow();
