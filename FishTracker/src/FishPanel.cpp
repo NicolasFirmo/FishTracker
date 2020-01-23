@@ -29,14 +29,16 @@ namespace ft {
 	}
 	void FishPanel::PaintFunction(wxDC& dc)
 	{
-		double newWidthFactor = ((double)m_FishFrame->GetClientSize().GetWidth()) / m_FishFrame->m_OriginalFrameSize.width;
-		double newHeightFactor = ((double)m_FishFrame->GetClientSize().GetHeight() - m_FishFrame->m_PlayBtn->GetSize().GetHeight()) / m_FishFrame->m_OriginalFrameSize.height;
-		double minorDimensionFactor = newWidthFactor < newHeightFactor ? newWidthFactor : newHeightFactor;
+		double newWidthFactor = ((double)m_FishFrame->GetClientSize().GetWidth() - 100) / m_FishFrame->m_OriginalFrameSize.width;
+		double newHeightFactor = ((double)m_FishFrame->GetClientSize().GetHeight() - 30) / m_FishFrame->m_OriginalFrameSize.height;
+		m_MinorDimensionFactor = newWidthFactor < newHeightFactor ? newWidthFactor : newHeightFactor;
 		{
 			FT_PROFILE_SCOPE("PaintFunction: OpenCV Mat Transformations");
 			if (!(m_FishFrame->m_CapFrame.empty()))
 				cv::cvtColor(m_FishFrame->m_CapFrame, m_ColorCorrected, cv::COLOR_BGR2RGB);
-			cv::resize(m_ColorCorrected, m_SizeCorrected, cv::Size(), minorDimensionFactor, minorDimensionFactor);
+			cv::resize(m_ColorCorrected, m_SizeCorrected, cv::Size(), m_MinorDimensionFactor, m_MinorDimensionFactor);
+			for (auto&& ROI : m_FishFrame->m_ROIs)
+				ROI->Render(m_MinorDimensionFactor);
 		}
 		{
 			FT_PROFILE_SCOPE("PaintFunction: wxWidgets draw");
@@ -47,17 +49,19 @@ namespace ft {
 				dc.Clear();
 				m_FishFrame->m_ResizeHandled = true;
 			}
-			if (minorDimensionFactor == newWidthFactor)
+			if (m_MinorDimensionFactor == newWidthFactor)
 			{
 				FT_PROFILE_SCOPE("PaintFunction: dc.DrawBitmap() with m_FrameTopCoord");
-				m_FrameTopCoord = (m_FishFrame->GetClientSize().GetHeight() - m_FishFrame->m_PlayBtn->GetSize().GetHeight() - m_SizeCorrected.rows) / 2;
-				dc.DrawBitmap(bitmap, 0, m_FrameTopCoord, true);
+				m_FrameLeftCoord = 0;
+				m_FrameTopCoord = (m_FishFrame->GetClientSize().GetHeight() - 30 - m_SizeCorrected.rows) / 2;
+				dc.DrawBitmap(bitmap, m_FrameLeftCoord, m_FrameTopCoord, true);
 			}
 			else
 			{
 				FT_PROFILE_SCOPE("PaintFunction: dc.DrawBitmap() with m_FrameLeftCoord");
-				m_FrameLeftCoord = (m_FishFrame->GetClientSize().GetWidth() - m_SizeCorrected.cols) / 2;
-				dc.DrawBitmap(bitmap, m_FrameLeftCoord, 0, true);
+				m_FrameLeftCoord = (m_FishFrame->GetClientSize().GetWidth() - 100 - m_SizeCorrected.cols) / 2;
+				m_FrameTopCoord = 0;
+				dc.DrawBitmap(bitmap, m_FrameLeftCoord, m_FrameTopCoord, true);
 			}
 		}
 	}

@@ -34,3 +34,4 @@
 
 // wxWidgets
 #include <wx/wx.h>
+#include <wx/listctrl.h>

@@ -15,13 +15,14 @@ namespace ft {
 		DECLARE_EVENT_TABLE()
 	private:
 		void PaintFunction(wxDC& dc);
-	private:
+	public:
 		FishFrame* m_FishFrame;
 		cv::Mat m_ColorCorrected;
 		cv::Mat m_SizeCorrected;
 
 		int m_FrameTopCoord;
 		int m_FrameLeftCoord;
+		double m_MinorDimensionFactor;
 	};
 
 } // namespace ft
