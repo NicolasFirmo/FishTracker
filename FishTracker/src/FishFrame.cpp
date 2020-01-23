@@ -56,18 +56,18 @@ namespace ft
 			}
 
 			m_FishPanel = new FishPanel(this);
-			m_PlayBtn = new wxButton(this, FT_ID_PLAY, "PLAY", wxDefaultPosition, wxSize(30, 30));
-			m_PauseBtn = new wxButton(this, FT_ID_PAUSE, "PAUSE", wxDefaultPosition, wxSize(30, 30));
-			m_FastFowardBtn = new wxButton(this, FT_ID_FASTFOWARD, "FF", wxDefaultPosition, wxSize(30, 30));
+			m_PlayBtn = new wxButton(this, FT_ID_PLAY, "PLAY", wxDefaultPosition, wxSize(0, m_ButtonHeight));
+			m_PauseBtn = new wxButton(this, FT_ID_PAUSE, "PAUSE", wxDefaultPosition, wxSize(0, m_ButtonHeight));
+			m_FastFowardBtn = new wxButton(this, FT_ID_FASTFOWARD, "FF", wxDefaultPosition, wxSize(0, m_ButtonHeight));
 
-			m_ROILst = new wxListView(this, FT_ID_ROILIST, wxDefaultPosition, wxSize(100, 30));
-			m_ROILst->InsertColumn(0, "Regions", 0, 100);
-			m_ROITxt = new wxTextCtrl(this, wxID_ANY, "Region", wxDefaultPosition, wxSize(100, 30));
-			m_AddROIBtn = new wxButton(this, FT_ID_ADDROI, "ADD ROI", wxDefaultPosition, wxSize(100, 30));
-			m_DeleteROIBtn = new wxButton(this, FT_ID_DELETEROI, "DELETE ROI", wxDefaultPosition, wxSize(100, 30));
-			m_UnactiveROIModeBtn = new wxButton(this, FT_ID_UNACTIVEROIMODE, "DEACTIVATE ROI", wxDefaultPosition, wxSize(100, 30));
-			m_CountROIModeBtn = new wxButton(this, FT_ID_COUNTROIMODE, "SET TO COUNT", wxDefaultPosition, wxSize(100, 30));
-			m_UncountROIModeBtn = new wxButton(this, FT_ID_UNCOUNTROIMODE, "SET TO UNCOUNT", wxDefaultPosition, wxSize(100, 30));
+			m_ROILst = new wxListView(this, FT_ID_ROILIST);
+			m_ROILst->InsertColumn(0, "Regions", 0, 150);
+			m_ROITxt = new wxTextCtrl(this, wxID_ANY, "Region", wxDefaultPosition, wxSize(m_RightPanelWidth, m_ButtonHeight));
+			m_AddROIBtn = new wxButton(this, FT_ID_ADDROI, "ADD ROI", wxDefaultPosition, wxSize(m_RightPanelWidth, m_ButtonHeight));
+			m_DeleteROIBtn = new wxButton(this, FT_ID_DELETEROI, "DELETE ROI", wxDefaultPosition, wxSize(m_RightPanelWidth, m_ButtonHeight));
+			m_UnactiveROIModeBtn = new wxButton(this, FT_ID_UNACTIVEROIMODE, "DEACTIVATE ROI", wxDefaultPosition, wxSize(m_RightPanelWidth, m_ButtonHeight));
+			m_CountROIModeBtn = new wxButton(this, FT_ID_COUNTROIMODE, "SET TO COUNT", wxDefaultPosition, wxSize(m_RightPanelWidth, m_ButtonHeight));
+			m_UncountROIModeBtn = new wxButton(this, FT_ID_UNCOUNTROIMODE, "SET TO UNCOUNT", wxDefaultPosition, wxSize(m_RightPanelWidth, m_ButtonHeight));
 
 			wxBoxSizer* hSizer = new wxBoxSizer(wxHORIZONTAL);
 			wxBoxSizer* vSizer = new wxBoxSizer(wxVERTICAL);
@@ -92,9 +92,9 @@ namespace ft
 			SetSizer(h2Sizer);
 			h2Sizer->Layout();
 
-			wxSize frameSize = m_CurrentFrameSize + wxSize(100, 30);
+			wxSize frameSize = m_CurrentFrameSize + wxSize(m_RightPanelWidth, m_ButtonHeight);
 			SetClientSize(frameSize);
-			SetMinClientSize(GetMinClientSize() + wxSize(0, 40));
+			SetMinClientSize(GetMinClientSize() + wxSize(m_RightPanelWidth + 10, m_ButtonHeight + 10));
 			m_FishThread = new std::thread(&FishFrame::Run, this);
 
 			m_VideoAvaliable = true;
@@ -246,15 +246,17 @@ namespace ft
 			while (!(wxGetMouseState().LeftIsDown()))
 				std::this_thread::sleep_for(std::chrono::microseconds(100));
 			auto mousePos1 = ScreenToClient(wxGetMousePosition());
-			while ((wxGetMouseState().LeftIsDown())) {
+			while ((wxGetMouseState().LeftIsDown())) 
+			{
 				auto mousePos2 = ScreenToClient(wxGetMousePosition());
 				int left = mousePos1.x < mousePos2.x ? mousePos1.x : mousePos2.x;
 				int top = mousePos1.y < mousePos2.y ? mousePos1.y : mousePos2.y;
 				int width = left == mousePos1.x ? mousePos2.x - mousePos1.x : mousePos1.x - mousePos2.x;
 				int height = top == mousePos1.y ? mousePos2.y - mousePos1.y : mousePos1.y - mousePos2.y;
 				m_ROIs.back()->SetRect(cv::Rect((left - m_FishPanel->m_FrameLeftCoord) / m_FishPanel->m_MinorDimensionFactor, (top - m_FishPanel->m_FrameTopCoord) / m_FishPanel->m_MinorDimensionFactor, width / m_FishPanel->m_MinorDimensionFactor, height / m_FishPanel->m_MinorDimensionFactor));
-				m_FishPanel->PaintNow();
-				std::this_thread::sleep_for(std::chrono::microseconds(100));
+				if(!m_VideoPlaying)
+					m_FishPanel->PaintNow();
+				std::this_thread::sleep_for(std::chrono::milliseconds(1));
 			}
 			SetCursor(wxCursor(wxCURSOR_DEFAULT));
 			m_AddROIBtn->Enable();
@@ -266,6 +268,7 @@ namespace ft
 		FT_PROFILE_FUNCTION();
 		m_ROIs.erase(m_ROIs.begin() + m_ROILst->GetFirstSelected());
 		m_ROILst->DeleteItem(m_ROILst->GetFirstSelected());
+		m_FishPanel->PaintNow();
 	}
 
 	void ft::FishFrame::OnSelectedROI(wxListEvent& evt)
@@ -298,7 +301,7 @@ namespace ft
 	void ft::FishFrame::OnUnactiveROIMode(wxCommandEvent& evt)
 	{
 		FT_PROFILE_FUNCTION();
-		m_ROILst->SetItemBackgroundColour(m_ROILst->GetFirstSelected(), wxColor(255, 255, 255));
+		m_ROILst->SetItemBackgroundColour(m_ROILst->GetFirstSelected(), m_ROILst->GetBackgroundColour());
 		m_ROIs[m_ROILst->GetFirstSelected()]->SetMode(ROIMode::UNACTIVE);
 		m_FishPanel->PaintNow();
 	}

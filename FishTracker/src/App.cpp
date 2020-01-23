@@ -6,6 +6,11 @@ wxIMPLEMENT_APP(ft::App);
 
 namespace ft {
 
+	App::App()
+	{
+		XInitThreads();
+	}
+
 	bool App::OnInit()
 	{
 		FT_PROFILE_BEGIN_SESSION("Initialization", "result.json");

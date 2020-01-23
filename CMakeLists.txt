@@ -8,7 +8,14 @@ endif()
 
 project(FishTracker VERSION 0.1.0)
 
+if (UNIX)
+  find_package (X11 REQUIRED)
+  message(STATUS "X11_FOUND = ${X11_FOUND}")
+  message(STATUS "X11_INCLUDE_DIR = ${X11_INCLUDE_DIR}")
+  message(STATUS "X11_LIBRARIES = ${X11_LIBRARIES}")
+endif (UNIX)
 find_package (Threads)
+
 
 set(WX_DIR $ENV{WXWIN})
 set(OpenCV_DIR $ENV{OPENCV_DIR})
@@ -24,6 +31,9 @@ MESSAGE(STATUS "OpenCV Include dirs ${OpenCV_INCLUDE_DIRS}")
 MESSAGE(STATUS "OpenCV LINK LIBRARIES ${OpenCV_LIBS}")
 
 include_directories( ${OpenCV_INCLUDE_DIRS} )
+if (UNIX)
+  include_directories(${X11_INCLUDE_DIR})
+endif (UNIX)
 
 # Project subdirectory
 add_subdirectory(${PROJECT_NAME})

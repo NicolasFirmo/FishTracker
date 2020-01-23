@@ -1,8 +1,8 @@
 mkdir ../DebugBuild
 mkdir ../ReleaseBuild
 cd ../DebugBuild
-cmake -DwxBUILD_SHARED=OFF -DCMAKE_BUILD_TYPE=Debug ..
+cmake -DwxBUILD_SHARED=OFF -DwxUSE_X11=ON -DCMAKE_BUILD_TYPE=Debug ..
 make
 cd ../ReleaseBuild
-cmake -DwxBUILD_SHARED=OFF -DCMAKE_BUILD_TYPE=Release ..
+cmake -DwxBUILD_SHARED=OFF -DwxUSE_X11=ON -DCMAKE_BUILD_TYPE=Release ..
 make

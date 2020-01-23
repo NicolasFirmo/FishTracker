@@ -5,6 +5,8 @@ namespace ft {
 
 	class App : public wxApp
 	{
+	public:
+		App();
 	private:
 		virtual bool OnInit() override;
 		void OnIdle(wxIdleEvent& evt);

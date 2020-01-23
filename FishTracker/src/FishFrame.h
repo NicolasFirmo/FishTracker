@@ -27,6 +27,8 @@ namespace ft {
 		void OnCountROIMode(wxCommandEvent& evt);
 		void OnUncountROIMode(wxCommandEvent& evt);
 	public:
+		const int m_RightPanelWidth = 150;
+		const int m_ButtonHeight = 30;
 		FishPanel* m_FishPanel = nullptr;
 
 		wxButton* m_PlayBtn = nullptr;

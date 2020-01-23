@@ -29,8 +29,8 @@ namespace ft {
 	}
 	void FishPanel::PaintFunction(wxDC& dc)
 	{
-		double newWidthFactor = ((double)m_FishFrame->GetClientSize().GetWidth() - 100) / m_FishFrame->m_OriginalFrameSize.width;
-		double newHeightFactor = ((double)m_FishFrame->GetClientSize().GetHeight() - 30) / m_FishFrame->m_OriginalFrameSize.height;
+		double newWidthFactor = ((double)m_FishFrame->GetClientSize().GetWidth() - m_FishFrame->m_RightPanelWidth) / m_FishFrame->m_OriginalFrameSize.width;
+		double newHeightFactor = ((double)m_FishFrame->GetClientSize().GetHeight() - m_FishFrame->m_ButtonHeight) / m_FishFrame->m_OriginalFrameSize.height;
 		m_MinorDimensionFactor = newWidthFactor < newHeightFactor ? newWidthFactor : newHeightFactor;
 		{
 			FT_PROFILE_SCOPE("PaintFunction: OpenCV Mat Transformations");
@@ -53,13 +53,13 @@ namespace ft {
 			{
 				FT_PROFILE_SCOPE("PaintFunction: dc.DrawBitmap() with m_FrameTopCoord");
 				m_FrameLeftCoord = 0;
-				m_FrameTopCoord = (m_FishFrame->GetClientSize().GetHeight() - 30 - m_SizeCorrected.rows) / 2;
+				m_FrameTopCoord = (m_FishFrame->GetClientSize().GetHeight() - m_FishFrame->m_ButtonHeight - m_SizeCorrected.rows) / 2;
 				dc.DrawBitmap(bitmap, m_FrameLeftCoord, m_FrameTopCoord, true);
 			}
 			else
 			{
 				FT_PROFILE_SCOPE("PaintFunction: dc.DrawBitmap() with m_FrameLeftCoord");
-				m_FrameLeftCoord = (m_FishFrame->GetClientSize().GetWidth() - 100 - m_SizeCorrected.cols) / 2;
+				m_FrameLeftCoord = (m_FishFrame->GetClientSize().GetWidth() - m_FishFrame->m_RightPanelWidth - m_SizeCorrected.cols) / 2;
 				m_FrameTopCoord = 0;
 				dc.DrawBitmap(bitmap, m_FrameLeftCoord, m_FrameTopCoord, true);
 			}
