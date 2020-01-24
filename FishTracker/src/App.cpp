@@ -8,7 +8,9 @@ namespace ft {
 
 	App::App()
 	{
+#ifdef FT_PLATFORM_LINUX
 		XInitThreads();
+#endif
 	}
 
 	bool App::OnInit()

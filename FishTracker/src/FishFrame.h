@@ -46,19 +46,19 @@ namespace ft {
 		cv::VideoCapture m_Cap;
 		cv::Mat m_CapFrame;
 		cv::Size m_OriginalFrameSize;
-		wxSize m_CurrentFrameSize;
 		bool m_ResizeHandled = false;
 
 		std::vector<std::unique_ptr<ROI>> m_ROIs;
 	protected:
-		std::thread* m_FishThread = nullptr;
-		std::thread* m_AddROIThread = nullptr;
+		std::unique_ptr<std::thread> m_FishThread = nullptr;
+		std::unique_ptr<std::thread> m_AddROIThread = nullptr;
 
 		std::chrono::nanoseconds m_VideoFrameDuration;
 		std::chrono::nanoseconds m_SleepDuration;
 		std::chrono::time_point<std::chrono::high_resolution_clock> m_FrameTimePoint;
 		std::chrono::time_point<std::chrono::high_resolution_clock> m_SleepTimePoint;
 
+		bool m_Closing = false;
 		bool m_VideoAvaliable = false;
 		bool m_VideoPlaying = false;
 		bool m_VideoFastFoward = false;
