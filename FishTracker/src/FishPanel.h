@@ -15,6 +15,7 @@ namespace ft {
 		DECLARE_EVENT_TABLE()
 	private:
 		void PaintFunction(wxDC& dc);
+		bool m_Painting = false;
 	public:
 		FishFrame* m_FishFrame;
 		cv::Mat m_ColorCorrected;

@@ -36,7 +36,14 @@ namespace ft {
 		}
 
 		inline cv::Rect GetRect() const { return m_Rect; }
-		inline void SetRect(cv::Rect rect) { m_Rect = rect; }
+		void SetRect(cv::Rect rect, cv::Size frameSize) { 
+			if(rect.x < 0){rect.width += rect.x; rect.x = 0;}
+			if(rect.y < 0){rect.height += rect.y; rect.y = 0;}
+			if(rect.x + rect.width > frameSize.width) rect.width = frameSize.width - rect.x;
+			if(rect.y + rect.height > frameSize.height) rect.height = frameSize.height - rect.y;
+			
+			m_Rect = rect; 
+		}
 
 		inline void Select() { m_IsSelected = true; }
 		inline void Unselect() { m_IsSelected = false; }

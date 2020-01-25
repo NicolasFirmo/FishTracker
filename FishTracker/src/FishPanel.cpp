@@ -16,16 +16,24 @@ namespace ft {
 	void FishPanel::PaintEvent(wxPaintEvent& evt)
 	{
 		FT_PROFILE_FUNCTION();
+		if(m_Painting)
+			return;
+		m_Painting = true;
 		wxPaintDC dc(this);
 		PrepareDC(dc);
 		PaintFunction(dc);
+		m_Painting = false;
 	}
 	void FishPanel::PaintNow()
 	{
 		FT_PROFILE_FUNCTION();
+		if(m_Painting)
+			return;
+		m_Painting = true;
 		wxClientDC dc(this);
 		PrepareDC(dc);
 		PaintFunction(dc);
+		m_Painting = false;
 	}
 	void FishPanel::PaintFunction(wxDC& dc)
 	{

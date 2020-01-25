@@ -217,7 +217,10 @@ namespace ft
 	void ft::FishFrame::OnAddROI(wxCommandEvent& evt)
 	{
 		FT_PROFILE_SCOPE("FishFrame::OnAddROI: getting name");
-
+		
+		m_AddROIBtn->Disable();
+		SetCursor(wxCursor(wxCURSOR_CROSS));
+		
 		wxString userEntry = m_ROITxt->GetValue();
 		wxListItem item;
 		if (m_ROILst->FindItem(-1, (userEntry)) != wxNOT_FOUND)
@@ -229,8 +232,7 @@ namespace ft
 		else
 			item.SetText(userEntry);
 
-		static long i = 0;
-		item.SetId(i++);
+		item.SetId(m_ROIs.size());
 		item.SetColumn(0);
 		long itemID = m_ROILst->InsertItem(item);
 
@@ -239,9 +241,6 @@ namespace ft
 		m_AddROIThread.release();
 		m_AddROIThread = std::make_unique<std::thread>([this, itemID]() {
 			FT_PROFILE_SCOPE("FishFrame::OnAddROI: setting rect");
-			m_AddROIBtn->Disable();
-			SetCursor(wxCursor(wxCURSOR_CROSS));
-
 			while (!(wxGetMouseState().LeftIsDown()) || !(GetClientRect().Contains(ScreenToClient(wxGetMousePosition()))))
 			{
 				if (m_Closing) // It only works because it immediately returns
@@ -266,7 +265,11 @@ namespace ft
 				int top = mousePos1.y < mousePos2.y ? mousePos1.y : mousePos2.y;
 				int width = left == mousePos1.x ? mousePos2.x - mousePos1.x : mousePos1.x - mousePos2.x;
 				int height = top == mousePos1.y ? mousePos2.y - mousePos1.y : mousePos1.y - mousePos2.y;
-				m_ROIs.back()->SetRect(cv::Rect((left - m_FishPanel->m_FrameLeftCoord) / m_FishPanel->m_MinorDimensionFactor, (top - m_FishPanel->m_FrameTopCoord) / m_FishPanel->m_MinorDimensionFactor, width / m_FishPanel->m_MinorDimensionFactor, height / m_FishPanel->m_MinorDimensionFactor));
+				m_ROIs.back()->SetRect(cv::Rect((left - m_FishPanel->m_FrameLeftCoord) / m_FishPanel->m_MinorDimensionFactor,
+																				(top - m_FishPanel->m_FrameTopCoord) / m_FishPanel->m_MinorDimensionFactor,
+																				width / m_FishPanel->m_MinorDimensionFactor,
+																				height / m_FishPanel->m_MinorDimensionFactor),
+																				m_OriginalFrameSize);
 				if (!m_VideoPlaying)
 					m_FishPanel->PaintNow();
 				std::this_thread::sleep_for(std::chrono::milliseconds(1));
@@ -282,8 +285,21 @@ namespace ft
 	void ft::FishFrame::OnDeleteROI(wxCommandEvent& evt)
 	{
 		FT_PROFILE_FUNCTION();
-		m_ROIs.erase(m_ROIs.begin() + m_ROILst->GetFirstSelected());
-		m_ROILst->DeleteItem(m_ROILst->GetFirstSelected());
+		long item = m_ROILst->GetFirstSelected();
+		m_ROIs.erase(m_ROIs.begin() + item);
+		m_ROILst->DeleteItem(item);
+		if(item < m_ROILst->GetItemCount())
+		{
+			m_ROILst->Select(item);
+		}
+		else
+		{
+			m_UnactiveROIModeBtn->Disable();
+			m_CountROIModeBtn->Disable();
+			m_UncountROIModeBtn->Disable();
+			m_DeleteROIBtn->Disable();
+		}
+		
 		if (!m_VideoPlaying)
 			m_FishPanel->PaintNow();
 	}
