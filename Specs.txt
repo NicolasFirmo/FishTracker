@@ -35,8 +35,9 @@ Visita 04/10
     momento em que o peixe entrou pela primeira vez
 -Regiões/ponto
 -Sequências: Determinar quando o peixe passa por uma configuração específica de regiões/ponto
--Contar tempo de imobilidade, liminar em milisegundos
+-Contar tempo de imobilidade, liminar em mm/s [a ser configurado pelo usuário]
 -Período de aclimatação
 -Velocidade média real: média da velocidade durante os períodos em que o peixe estava se movimentando significativamente
 -Determinar estado imóvel e letárgico através de limiares de velocidade
-
+-Posição média
+-Anexar experimentos com vários vídeo em um único arquivo

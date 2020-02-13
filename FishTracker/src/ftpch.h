@@ -10,6 +10,7 @@
 #include <cmath>
 #include <cstdlib>
 #include <type_traits>
+#include <climits>
 
 #include <assert.h>
 #include <stdlib.h>
@@ -19,6 +20,7 @@
 // Data structures
 #include <array>
 #include <vector>
+#include <queue>
 #include <string>
 #include <sstream>
 #include <fstream>

@@ -11,7 +11,7 @@ namespace ft {
 	class ROI
 	{
 	public:
-		ROI(cv::Mat& parentMat, const wxString& name);
+		ROI(cv::Mat& drawingMat, const wxString& name);
 
 		inline const wxString& GetName() const { return m_Name; }
 		inline void SetName(const std::string& name) { m_Name = name; }
@@ -21,13 +21,13 @@ namespace ft {
 			m_Mode = mode; switch (m_Mode)
 			{
 			case ft::UNACTIVE:
-				m_Color = cv::Scalar(200, 200, 200);
+				m_Color = cv::Scalar_<uchar>(200, 200, 200);
 				break;
 			case ft::COUNTING:
-				m_Color = cv::Scalar(0, 255, 50);
+				m_Color = cv::Scalar_<uchar>(0, 255, 50);
 				break;
 			case ft::UNCOUNTING:
-				m_Color = cv::Scalar(255, 50, 0);
+				m_Color = cv::Scalar_<uchar>(255, 50, 0);
 				break;
 			default:
 				FT_ASSERT(false, "Unknow ROIMode");
@@ -53,11 +53,11 @@ namespace ft {
 		ft::ROI& operator =(const ft::ROI& ROI) { return const_cast<ft::ROI&>(ROI); }
 	private:
 		bool m_IsSelected = false;
-		cv::Mat& m_ParentMat;
+		cv::Mat& m_DrawingMat;
 		wxString m_Name;
 		cv::Rect m_Rect;
 		ROIMode m_Mode = ROIMode::UNACTIVE;
-		cv::Scalar m_Color = cv::Scalar(200, 200, 200);
+		cv::Scalar_<uchar> m_Color = cv::Scalar_<uchar>(200, 200, 200);
 	};
 
 } // namespace ft

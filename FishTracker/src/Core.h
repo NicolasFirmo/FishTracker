@@ -14,3 +14,8 @@
 #else
 	#define FT_ASSERT(x, error)
 #endif
+
+#define FT_MIN_FRAME_WIDTH 48
+#define FT_MIN_FRAME_HEIGHT 48
+
+#define FT_SUM_THRESHOLD_MAX 10000

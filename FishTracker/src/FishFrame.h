@@ -1,6 +1,7 @@
 #pragma once
 #include "FishPanel.h"
 #include "ROI.h"
+#include "Tracking.h"
 
 namespace ft {
 
@@ -9,10 +10,12 @@ namespace ft {
 	public:
 		FishFrame(const std::string& videoPath);
 		~FishFrame();
+		inline bool Opened() const { return m_VideoAvaliable; }
+
+	private:
 		void OnClose(wxCloseEvent& evt);
 		void OnSize(wxSizeEvent& evt);
 
-		inline bool Opened() const { return m_VideoAvaliable; }
 		void Run();
 
 		void OnPlay(wxCommandEvent& evt);
@@ -26,9 +29,14 @@ namespace ft {
 		void OnUnactiveROIMode(wxCommandEvent& evt);
 		void OnCountROIMode(wxCommandEvent& evt);
 		void OnUncountROIMode(wxCommandEvent& evt);
+
+		void OnSumThresholdChange(wxCommandEvent& evt);
+		void OnMovementThresholdChange(wxCommandEvent& evt);
+
 	public:
 		const int m_RightPanelWidth = 150;
 		const int m_ButtonHeight = 30;
+
 		FishPanel* m_FishPanel = nullptr;
 
 		wxButton* m_PlayBtn = nullptr;
@@ -43,13 +51,21 @@ namespace ft {
 		wxButton* m_CountROIModeBtn = nullptr;
 		wxButton* m_UncountROIModeBtn = nullptr;
 
-		cv::VideoCapture m_Cap;
-		cv::Mat m_CapFrame;
+		wxSlider* m_SliderSumThreshold = nullptr;
+		wxSlider* m_SliderMovementThreshold = nullptr;
+
+		cv::Mat m_ToRenderFrame;
 		cv::Size m_OriginalFrameSize;
 		bool m_ResizeHandled = false;
 
 		std::vector<std::unique_ptr<ROI>> m_ROIs;
-	protected:
+		std::unique_ptr<Target> m_Fish;
+		cv::Rect m_BackgroundUpdateRect;
+
+	private:
+		cv::VideoCapture m_Cap;
+		cv::Mat m_CapFrame;
+
 		std::unique_ptr<std::thread> m_FishThread = nullptr;
 		std::unique_ptr<std::thread> m_AddROIThread = nullptr;
 
