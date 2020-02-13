@@ -6,7 +6,11 @@ MESSAGE(STATUS "${PROJECT_NAME}_SOURCES: ${${PROJECT_NAME}_SOURCES}")
 
 if (MSVC)
   include_directories(${WX_DIR}/include ${WX_DIR}/include/msvc)
-  link_directories(${WX_DIR}/lib/vc_x64_lib)
+  if("${CMAKE_SIZEOF_VOID_P}" STREQUAL "8") # Checks if system is 64 bits
+    link_directories(${WX_DIR}/lib/vc_x64_lib)
+  else()
+    link_directories(${WX_DIR}/lib/vc_lib)
+  endif("${CMAKE_SIZEOF_VOID_P}" STREQUAL "8")  
 endif (MSVC)
 if(WIN32)
   add_compile_definitions(__WXMSW__)

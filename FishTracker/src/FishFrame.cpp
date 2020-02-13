@@ -28,9 +28,11 @@ wxEND_EVENT_TABLE()
 
 namespace ft
 {
+	const int FishFrame::m_RightPanelWidth = 150;
+	const int FishFrame::m_ButtonHeight = 30;
 
-	FishFrame::FishFrame(const std::string& videoPath) : wxFrame(nullptr, wxID_ANY, "Inspector", wxDefaultPosition, wxDefaultSize, wxDEFAULT_FRAME_STYLE),
-		m_Cap(videoPath),
+	FishFrame::FishFrame(MainFrame* parent, const std::string& videoPath) : wxFrame(nullptr, wxID_ANY, "Inspector", wxDefaultPosition, wxDefaultSize, wxDEFAULT_FRAME_STYLE),
+		m_Parent(parent), m_Cap(videoPath),
 		m_SleepDuration(std::chrono::microseconds(0)),
 		m_FrameTimePoint(std::chrono::high_resolution_clock::now()), m_SleepTimePoint(std::chrono::high_resolution_clock::now())
 	{
@@ -45,6 +47,8 @@ namespace ft
 			m_CapFrame.copyTo(m_ToRenderFrame);
 
 			m_VideoFrameDuration = std::chrono::nanoseconds((long long)(1000000000.0 / m_Cap.get(cv::CAP_PROP_FPS)));
+			if (m_VideoFrameDuration < std::chrono::milliseconds(5))
+				m_VideoFrameDuration = std::chrono::nanoseconds((long long)(1000000000.0 / 30));
 
 			m_OriginalFrameSize.width = (int)m_Cap.get(cv::CAP_PROP_FRAME_WIDTH);
 			m_OriginalFrameSize.height = (int)m_Cap.get(cv::CAP_PROP_FRAME_HEIGHT);
@@ -103,8 +107,6 @@ namespace ft
 			m_Fish = std::make_unique<Target>(m_CapFrame, m_FishPanel->m_SizeCorrected, m_SliderSumThreshold->GetValue(), m_SliderMovementThreshold->GetValue(),
 				cv::Vec3b(45, 49, 46), cv::Vec3b(123, 127, 125), cv::Size(FT_MIN_FRAME_WIDTH, FT_MIN_FRAME_HEIGHT));
 			m_BackgroundUpdateRect = m_Fish->GetScanningAreaRect();
-
-			m_FishPanel->Start();
 
 			m_VideoAvaliable = true;
 			m_FishThread = std::make_unique<std::thread>(&FishFrame::Run, this);
@@ -166,7 +168,7 @@ namespace ft
 					// Debug ----------
 					//m_ToRenderFrame.setTo(0);
 					//m_Fish->m_MovementMat.copyTo(m_ToRenderFrame, m_Fish->m_WhatIsFish);
-					m_ToRenderFrame = m_CapFrame;
+					m_CapFrame.copyTo(m_ToRenderFrame);
 					//cv::rectangle(m_ToRenderFrame, m_BackgroundUpdateRect, cv::Vec3b(255, 0, 255));
 					// ----------------
 				}
@@ -191,12 +193,19 @@ namespace ft
 		m_Closing = true;
 		m_VideoAvaliable = false;
 
+		m_Parent->m_FishFramesMutex.lock();
+
+		if (m_Parent->m_FishFrames.size() < 2)
+			m_Parent->m_FishFrames.clear();
+		else
+			m_Parent->m_FishFrames.erase(m_Iterator);
+
+		m_Parent->m_FishFramesMutex.unlock();
+
 		if (m_FishThread)
 			m_FishThread->join();
 		if (m_AddROIThread)
 			m_AddROIThread->join();
-
-		m_FishPanel->Shutdown();
 
 		Destroy();
 		evt.Skip(); // don't stop event, we still want window to close
@@ -278,6 +287,13 @@ namespace ft
 			{
 				if (m_Closing) // It only works because it immediately returns
 					return;
+				std::this_thread::sleep_for(std::chrono::milliseconds(100));
+			}
+			auto mousePos1 = ScreenToClient(wxGetMousePosition());
+
+			while ((wxGetMouseState().LeftIsDown()))
+			{
+				FT_PROFILE_SCOPE("FishFrame::OnAddROI: update rect size");
 				if (wxGetMouseState().RightIsDown() || wxGetKeyState(wxKeyCode::WXK_ESCAPE))
 				{
 					m_ROIs.pop_back();
@@ -286,13 +302,6 @@ namespace ft
 					m_AddROIBtn->Enable();
 					return;
 				}
-				std::this_thread::sleep_for(std::chrono::microseconds(100));
-			}
-			auto mousePos1 = ScreenToClient(wxGetMousePosition());
-
-			while ((wxGetMouseState().LeftIsDown()))
-			{
-				FT_PROFILE_SCOPE("FishFrame::OnAddROI: update rect size");
 				auto mousePos2 = ScreenToClient(wxGetMousePosition());
 				int left = mousePos1.x < mousePos2.x ? mousePos1.x : mousePos2.x;
 				int top = mousePos1.y < mousePos2.y ? mousePos1.y : mousePos2.y;
@@ -303,8 +312,6 @@ namespace ft
 					width / m_FishPanel->m_MinorDimensionFactor,
 					height / m_FishPanel->m_MinorDimensionFactor),
 					m_OriginalFrameSize);
-				if (!m_VideoPlaying)
-					m_FishPanel->PaintNow();
 				std::this_thread::sleep_for(std::chrono::milliseconds(1));
 			}
 

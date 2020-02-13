@@ -44,7 +44,7 @@ namespace ft {
 			m_OutputStream.open(filepath);
 
 			if (m_OutputStream.is_open()) {
-				m_CurrentSession = new InstrumentationSession({name});
+				m_CurrentSession = new InstrumentationSession({ name });
 				WriteHeader();
 			}
 		}

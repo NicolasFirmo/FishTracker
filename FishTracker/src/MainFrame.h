@@ -1,6 +1,7 @@
 #pragma once
 #include "Core.h"
 #include "FishFrame.h"
+#include "PaintTimer.h"
 
 namespace ft {
 
@@ -11,11 +12,14 @@ namespace ft {
 		void OnClose(wxCloseEvent& evt);
 
 		void OnLoadVideo(wxCommandEvent& evt);
-	public:
-		FishFrame* m_FishFrame;
-		wxButton* m_LoadBtn = nullptr;
-
 		wxDECLARE_EVENT_TABLE();
+	private:
+		PaintTimer* m_Timer;
+	public:
+		std::vector<FishFrame*> m_FishFrames;
+		std::mutex m_FishFramesMutex;
+
+		wxButton* m_LoadBtn = nullptr;
 	};
 
 } // namespace ft

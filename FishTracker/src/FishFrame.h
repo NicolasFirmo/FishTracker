@@ -5,11 +5,14 @@
 
 namespace ft {
 
+	class MainFrame;
+
 	class FishFrame : public wxFrame
 	{
 	public:
-		FishFrame(const std::string& videoPath);
+		FishFrame(MainFrame* parent, const std::string& videoPath);
 		~FishFrame();
+		inline void SetIterator(const std::vector<ft::FishFrame*>::iterator& it) { m_Iterator = it; }
 		inline bool Opened() const { return m_VideoAvaliable; }
 
 	private:
@@ -34,8 +37,11 @@ namespace ft {
 		void OnMovementThresholdChange(wxCommandEvent& evt);
 
 	public:
-		const int m_RightPanelWidth = 150;
-		const int m_ButtonHeight = 30;
+		static const int m_RightPanelWidth;
+		static const int m_ButtonHeight;
+
+		MainFrame* m_Parent;
+		std::vector<ft::FishFrame*>::iterator m_Iterator;
 
 		FishPanel* m_FishPanel = nullptr;
 
@@ -62,6 +68,7 @@ namespace ft {
 		std::unique_ptr<Target> m_Fish;
 		cv::Rect m_BackgroundUpdateRect;
 
+		bool m_Closing = false;
 	private:
 		cv::VideoCapture m_Cap;
 		cv::Mat m_CapFrame;
@@ -74,7 +81,6 @@ namespace ft {
 		std::chrono::time_point<std::chrono::high_resolution_clock> m_FrameTimePoint;
 		std::chrono::time_point<std::chrono::high_resolution_clock> m_SleepTimePoint;
 
-		bool m_Closing = false;
 		bool m_VideoAvaliable = false;
 		bool m_VideoPlaying = false;
 		bool m_VideoFastFoward = false;

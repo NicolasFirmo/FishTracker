@@ -42,7 +42,8 @@ namespace ft {
 			{
 
 				uint64_t movementDiferenceIntensity = pMovement[j][0] + pMovement[j][1] + pMovement[j][2];
-				if (!(pInput[j][0] > m_LowColor[0] &&
+				if (!(
+					pInput[j][0] > m_LowColor[0] &&
 					pInput[j][1] > m_LowColor[1] &&
 					pInput[j][2] > m_LowColor[2] &&
 
@@ -131,7 +132,9 @@ namespace ft {
 		FT_ASSERT(!m_DrawingMat.empty(), "m_DrawingMat is empty!");
 		FT_ASSERT(m_DrawingMat.type() == CV_8UC3, "Target::DrawPositionCross(double scale) only accepts CV_8UC3 mats");
 
-		cv::rectangle(m_DrawingMat, cv::Rect(m_ScanningAreaRect.x * scale, m_ScanningAreaRect.y * scale, m_ScanningAreaRect.width * scale, m_ScanningAreaRect.height * scale), m_ScanningAreaColor);
+		cv::Rect scaledRect = cv::Rect(m_ScanningAreaRect.x * scale, m_ScanningAreaRect.y * scale, m_ScanningAreaRect.width * scale, m_ScanningAreaRect.height * scale);
+		FT_ASSERT(scaledRect.tl().x >= 0 && scaledRect.tl().y >= 0 && scaledRect.br().x < m_DrawingMat.cols && scaledRect.br().y < m_DrawingMat.rows, "Rect out of m_DrawingMat bounds!");
+		cv::rectangle(m_DrawingMat, scaledRect, m_ScanningAreaColor);
 	}
 
 	void Target::UpdateScanningAreaRect()

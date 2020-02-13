@@ -2,6 +2,7 @@
 #include <iostream>
 #include <memory>
 #include <thread>
+#include <mutex>
 #include <functional>
 #include <utility>
 #include <algorithm>
