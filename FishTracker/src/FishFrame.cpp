@@ -195,10 +195,9 @@ namespace ft
 
 		m_Parent->m_FishFramesMutex.lock();
 
-		if (m_Parent->m_FishFrames.size() < 2)
-			m_Parent->m_FishFrames.clear();
-		else
-			m_Parent->m_FishFrames.erase(m_Iterator);
+		m_Parent->m_FishFrames.erase(m_Parent->m_FishFrames.begin() +  m_Index);
+		for (size_t i = m_Index; i < m_Parent->m_FishFrames.size(); i++)
+			m_Parent->m_FishFrames[i]->SetIndex(i);
 
 		m_Parent->m_FishFramesMutex.unlock();
 

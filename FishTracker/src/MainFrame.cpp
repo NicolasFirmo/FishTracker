@@ -63,7 +63,7 @@ namespace ft {
 			// proceed loading the file chosen by the user;
 			// this can be done with e.g. wxWidgets input streams:
 			m_FishFrames.push_back(new FishFrame(this, (std::string)openFileDialog.GetPath()));
-			m_FishFrames.back()->SetIterator(m_FishFrames.end() - 1);
+			m_FishFrames.back()->SetIndex(m_FishFrames.size() - 1);
 
 			if (!m_FishFrames.back()->Opened())
 			{

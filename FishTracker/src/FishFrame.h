@@ -12,7 +12,7 @@ namespace ft {
 	public:
 		FishFrame(MainFrame* parent, const std::string& videoPath);
 		~FishFrame();
-		inline void SetIterator(const std::vector<ft::FishFrame*>::iterator& it) { m_Iterator = it; }
+		inline void SetIndex(size_t idx) { m_Index = idx; }
 		inline bool Opened() const { return m_VideoAvaliable; }
 
 	private:
@@ -39,9 +39,6 @@ namespace ft {
 	public:
 		static const int m_RightPanelWidth;
 		static const int m_ButtonHeight;
-
-		MainFrame* m_Parent;
-		std::vector<ft::FishFrame*>::iterator m_Iterator;
 
 		FishPanel* m_FishPanel = nullptr;
 
@@ -70,6 +67,9 @@ namespace ft {
 
 		bool m_Closing = false;
 	private:
+		MainFrame* m_Parent;
+		size_t m_Index;
+
 		cv::VideoCapture m_Cap;
 		cv::Mat m_CapFrame;
 
