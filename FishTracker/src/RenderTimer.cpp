@@ -1,19 +1,19 @@
-#include "PaintTimer.h"
+#include "RenderTimer.h"
 #include "MainFrame.h"
 #include "Instrumentation/ScopeTimer.h"
 #include "Instrumentation/Profile.h"
 
 namespace ft {
 
-	PaintTimer::PaintTimer(MainFrame* parent) : wxTimer(), m_MainFrame(parent)
+	RenderTimer::RenderTimer(MainFrame* parent) : wxTimer(), m_MainFrame(parent)
 	{}
 
-	void PaintTimer::Start()
+	void RenderTimer::Start()
 	{
 		wxTimer::Start(10);
 	}
 
-	void PaintTimer::Notify()
+	void RenderTimer::Notify()
 	{
 		FT_PROFILE_FUNCTION();
 		m_MainFrame->m_FishFramesMutex.lock();
@@ -22,8 +22,7 @@ namespace ft {
 			for (auto& fishFrame : m_MainFrame->m_FishFrames)
 			{
 				FT_ASSERT(fishFrame->m_FishPanel, "FishPanel of this FishFrame is nullptr!");
-				if (!(fishFrame->m_Closing))
-					fishFrame->m_FishPanel->PaintNow();
+				fishFrame->Update();
 			}
 		}
 		m_MainFrame->m_FishFramesMutex.unlock();

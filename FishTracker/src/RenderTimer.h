@@ -4,11 +4,11 @@ namespace ft {
 
 	class MainFrame;
 
-	class PaintTimer : public wxTimer
+	class RenderTimer : public wxTimer
 	{
 		MainFrame* m_MainFrame;
 	public:
-		PaintTimer(MainFrame* parent);
+		RenderTimer(MainFrame* parent);
 		void Notify();
 		void Start();
 	};

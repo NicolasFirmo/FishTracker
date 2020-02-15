@@ -1,7 +1,7 @@
 #pragma once
 #include "Core.h"
 #include "FishFrame.h"
-#include "PaintTimer.h"
+#include "RenderTimer.h"
 
 namespace ft {
 
@@ -14,7 +14,7 @@ namespace ft {
 		void OnLoadVideo(wxCommandEvent& evt);
 		wxDECLARE_EVENT_TABLE();
 	private:
-		PaintTimer* m_Timer;
+		RenderTimer* m_Timer;
 	public:
 		std::vector<FishFrame*> m_FishFrames;
 		std::mutex m_FishFramesMutex;

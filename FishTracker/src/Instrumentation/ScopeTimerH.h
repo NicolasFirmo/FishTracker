@@ -51,6 +51,23 @@ namespace ft {
 	template<>struct ScopeTimerOStream<minutes>::TimeUnity { static constexpr const char* value() { return "m\n"; } };
 	template<>struct ScopeTimerOStream<hours>::TimeUnity { static constexpr const char* value() { return "h\n"; } };
 
+	template<typename T, typename D = microseconds>
+	class ScopeTimerReference
+	{
+		static_assert(sizeof(T) == -1, "You must provide a pointer!");
+	};
+
+	template<typename T, typename D>
+	class ScopeTimerReference<T*, D>
+	{
+	public:
+		ScopeTimerReference(T* number);
+		~ScopeTimerReference();
+	private:
+		T* m_Number;
+		std::chrono::time_point<std::chrono::steady_clock> m_StartTimePoint;
+	};
+
 } // namespace ft
 
 #define FT_TIMER 1

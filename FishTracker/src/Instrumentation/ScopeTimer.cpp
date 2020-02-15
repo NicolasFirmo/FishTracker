@@ -28,4 +28,20 @@ namespace ft {
 		m_Os << m_ScopeName << " Took: " << (int)duration << TimeUnity::value();
 	}
 
+	template<typename T, typename D>
+	ScopeTimerReference<T*, D>::ScopeTimerReference(T* number)
+		: m_Number(number), m_StartTimePoint(std::chrono::steady_clock::now())
+	{
+	}
+
+	template<typename T, typename D>
+	ScopeTimerReference<T*, D>::~ScopeTimerReference()
+	{
+		auto endTimePoint = std::chrono::steady_clock::now();
+		auto duration = std::chrono::duration_cast<D>(endTimePoint - m_StartTimePoint).count();
+		static_assert(std::is_same<decltype(&duration), decltype(m_Number)>::value, "Must be int64_t, otherwise, if on Windows and D is above seconds, it must be int");
+
+		*m_Number = duration;
+	}
+
 } // namespace ft

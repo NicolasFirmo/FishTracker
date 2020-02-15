@@ -11,6 +11,7 @@
 #include <cmath>
 #include <cstdlib>
 #include <type_traits>
+#include <typeinfo>
 #include <climits>
 
 #include <assert.h>

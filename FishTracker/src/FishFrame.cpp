@@ -134,6 +134,34 @@ namespace ft
 		// See @ref overview_windowdeletion for more info.
 	}
 
+	void ft::FishFrame::Update()
+	{
+		if (!m_Closing)
+			m_FishPanel->PaintNow();
+
+		if (!m_EndOfTheVideoHandled)
+		{
+			m_EndOfTheVideoHandled = true;
+			wxLogInfo("End of the video");
+		}
+
+		if (IsActive())
+		{
+			if (!m_FinishedAddingROIHandled)
+			{
+				m_FinishedAddingROIHandled = true;
+				SetCursor(wxCursor(wxCURSOR_DEFAULT));
+				m_AddROIBtn->Enable();
+			}
+			wxLogStatus(this, "Frame Took: %lldns", m_CurrentFrameDuration);
+		}
+	}
+
+	void func(int*)
+	{
+		return;
+	}
+
 	void FishFrame::Run()
 	{
 		FT_PROFILE_FUNCTION();
@@ -141,14 +169,15 @@ namespace ft
 			if (m_VideoPlaying)
 			{
 				FT_PROFILE_SCOPE("Run: Frame");
-				FT_FUNCTION_TIMER_STATUS(microseconds, this);
+				ScopeTimerReference<int64_t*> timer(&m_CurrentFrameDuration);
+				//FT_FUNCTION_TIMER_STATUS(microseconds, this); // Only for dev
 				{
 					FT_PROFILE_SCOPE("Run: m_Cap.read(m_CapFrame);");
 					m_Cap.read(m_CapFrame); // Main Bottleneck
 				}
 				if (m_CapFrame.empty())
 				{
-					wxLogInfo("End of the video");
+					m_EndOfTheVideoHandled = false;
 					m_VideoPlaying = false;
 					m_VideoAvaliable = false;
 					return;
@@ -195,7 +224,7 @@ namespace ft
 
 		m_Parent->m_FishFramesMutex.lock();
 
-		m_Parent->m_FishFrames.erase(m_Parent->m_FishFrames.begin() +  m_Index);
+		m_Parent->m_FishFrames.erase(m_Parent->m_FishFrames.begin() + m_Index);
 		for (size_t i = m_Index; i < m_Parent->m_FishFrames.size(); i++)
 			m_Parent->m_FishFrames[i]->SetIndex(i);
 
@@ -297,8 +326,7 @@ namespace ft
 				{
 					m_ROIs.pop_back();
 					m_ROILst->DeleteItem(itemID);
-					SetCursor(wxCursor(wxCURSOR_DEFAULT));
-					m_AddROIBtn->Enable();
+					m_FinishedAddingROIHandled = false;
 					return;
 				}
 				auto mousePos2 = ScreenToClient(wxGetMousePosition());
@@ -313,9 +341,7 @@ namespace ft
 					m_OriginalFrameSize);
 				std::this_thread::sleep_for(std::chrono::milliseconds(1));
 			}
-
-			SetCursor(wxCursor(wxCURSOR_DEFAULT));
-			m_AddROIBtn->Enable();
+			m_FinishedAddingROIHandled = false;
 
 			}
 		);

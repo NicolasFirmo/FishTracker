@@ -14,6 +14,7 @@ namespace ft {
 		~FishFrame();
 		inline void SetIndex(size_t idx) { m_Index = idx; }
 		inline bool Opened() const { return m_VideoAvaliable; }
+		void Update();
 
 	private:
 		void OnClose(wxCloseEvent& evt);
@@ -66,6 +67,10 @@ namespace ft {
 		cv::Rect m_BackgroundUpdateRect;
 
 		bool m_Closing = false;
+		// Thread Events
+		bool m_EndOfTheVideoHandled = true;
+		bool m_FinishedAddingROIHandled = true;
+		// -------------
 	private:
 		MainFrame* m_Parent;
 		size_t m_Index;
@@ -84,6 +89,7 @@ namespace ft {
 		bool m_VideoAvaliable = false;
 		bool m_VideoPlaying = false;
 		bool m_VideoFastFoward = false;
+		int64_t m_CurrentFrameDuration = 0;
 
 		wxDECLARE_EVENT_TABLE();
 	};

@@ -23,7 +23,7 @@ namespace ft {
 		SetSizer(Sizer);
 		Sizer->Layout();
 
-		m_Timer = new PaintTimer(this);
+		m_Timer = new RenderTimer(this);
 		m_Timer->Start();
 	}
 
