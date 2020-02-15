@@ -157,11 +157,6 @@ namespace ft
 		}
 	}
 
-	void func(int*)
-	{
-		return;
-	}
-
 	void FishFrame::Run()
 	{
 		FT_PROFILE_FUNCTION();
@@ -220,7 +215,16 @@ namespace ft
 	{
 		FT_PROFILE_FUNCTION();
 		m_Closing = true;
-		m_VideoAvaliable = false;
+		if(m_VideoAvaliable)
+		{
+			wxMessageDialog closeDialog(this, _("There's still content to be analized!\nExit anyway?"), "Exiting Inspection", wxYES_NO);
+			if(closeDialog.ShowModal() != wxID_YES)
+			{
+				m_Closing = false;
+				return;
+			}
+			m_VideoAvaliable = false;
+		}
 
 		m_Parent->m_FishFramesMutex.lock();
 

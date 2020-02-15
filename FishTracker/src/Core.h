@@ -2,9 +2,11 @@
 
 #ifdef FT_PLATFORM_WINDOWS
 	#define DEBUG_BREAK __debugbreak()
+	#define FT_MAX_NUMBER_OF_INSPECTIONS 20
 #elif FT_PLATFORM_LINUX
 	#include <csignal>
 	#define DEBUG_BREAK raise(SIGTRAP);
+	#define FT_MAX_NUMBER_OF_INSPECTIONS 5
 #else
 	#error FishTracker only suports Windows and Linux for now!
 #endif // FT_PLATFORM
@@ -19,5 +21,3 @@
 #define FT_MIN_FRAME_HEIGHT 48
 
 #define FT_SUM_THRESHOLD_MAX 10000
-
-#define FT_MAX_NUMBER_OF_INSPECTIONS 20

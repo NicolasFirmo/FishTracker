@@ -30,6 +30,12 @@ namespace ft {
 	void MainFrame::OnClose(wxCloseEvent& evt)
 	{
 		FT_PROFILE_FUNCTION();
+
+		for (auto& fishFrame : m_FishFrames)
+			fishFrame->Close();
+		if(m_FishFrames.size() > 0)
+			return;
+
 		m_Timer->Stop();
 		evt.Skip(); // don't stop event, we still want window to close
 		FT_PROFILE_END_SESSION();
