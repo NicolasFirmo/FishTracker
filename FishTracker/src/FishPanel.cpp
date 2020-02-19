@@ -50,6 +50,8 @@ namespace ft {
 				ROI->Render(m_MinorDimensionFactor);
 			m_FishFrame->m_Fish->DrawPositionCross(m_MinorDimensionFactor);
 			m_FishFrame->m_Fish->DrawScannigArea(m_MinorDimensionFactor);
+			if (m_FishFrame->m_Scale)
+				m_FishFrame->m_Scale->Render(m_SizeCorrected, m_MinorDimensionFactor);
 		}
 		{
 			FT_PROFILE_SCOPE("PaintFunction: wxWidgets Draw");

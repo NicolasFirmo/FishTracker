@@ -39,6 +39,7 @@
 // wxWidgets
 #include <wx/wx.h>
 #include <wx/listctrl.h>
+#include <wx/spinctrl.h>
 
 #ifdef FT_PLATFORM_LINUX
 #include <X11/Xlib.h>

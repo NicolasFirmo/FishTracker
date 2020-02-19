@@ -24,10 +24,13 @@ EVT_LIST_ITEM_DESELECTED(FT_ID_ROILIST, ft::FishFrame::OnDeselectedROI)
 EVT_SLIDER(FT_ID_SUM_THRESHOLD, ft::FishFrame::OnSumThresholdChange)
 EVT_SLIDER(FT_ID_MOVEMENT_THRESHOLD, ft::FishFrame::OnMovementThresholdChange)
 
+EVT_BUTTON(FT_ID_SET_SCALE, ft::FishFrame::OnSetScale)
+
 wxEND_EVENT_TABLE()
 
 namespace ft
 {
+
 	const int FishFrame::m_RightPanelWidth = 150;
 	const int FishFrame::m_ButtonHeight = 30;
 
@@ -79,6 +82,8 @@ namespace ft
 			m_SliderSumThreshold = new wxSlider(this, FT_ID_SUM_THRESHOLD, std::sqrt(FT_SUM_THRESHOLD_MAX) / 2, 1, std::sqrt(FT_SUM_THRESHOLD_MAX));
 			m_SliderMovementThreshold = new wxSlider(this, FT_ID_MOVEMENT_THRESHOLD, UCHAR_MAX / 2, 1, UCHAR_MAX);
 
+			m_SetScaleBtn = new wxButton(this, FT_ID_SET_SCALE, "SET SCALE", wxDefaultPosition, wxSize(m_RightPanelWidth, m_ButtonHeight));
+
 			wxBoxSizer* hSizer = new wxBoxSizer(wxHORIZONTAL);
 			wxBoxSizer* vSizer = new wxBoxSizer(wxVERTICAL);
 			wxBoxSizer* v2Sizer = new wxBoxSizer(wxVERTICAL);
@@ -100,6 +105,8 @@ namespace ft
 			v2Sizer->Add(m_ROILst, 1, wxEXPAND);
 			v2Sizer->Add(m_SliderSumThreshold, 0, wxEXPAND);
 			v2Sizer->Add(m_SliderMovementThreshold, 0, wxEXPAND);
+
+			v2Sizer->Add(m_SetScaleBtn, 0, wxEXPAND);
 
 			h2Sizer->Add(vSizer, 1, wxEXPAND);
 			h2Sizer->Add(v2Sizer, 0, wxEXPAND);
@@ -134,7 +141,7 @@ namespace ft
 		// See @ref overview_windowdeletion for more info.
 	}
 
-	void ft::FishFrame::Update()
+	void FishFrame::Update()
 	{
 		if (!m_Closing)
 			m_FishPanel->PaintNow();
@@ -152,6 +159,18 @@ namespace ft
 				m_FinishedAddingROIHandled = true;
 				SetCursor(wxCursor(wxCURSOR_DEFAULT));
 				m_AddROIBtn->Enable();
+			}
+			else if (!m_FinishedSettingScaleHandled)
+			{
+				m_FinishedSettingScaleHandled = true;
+				SetCursor(wxCursor(wxCURSOR_DEFAULT));
+				m_SetScaleBtn->Enable();
+
+				if (!m_SetLineLenghtHandled)
+				{
+					m_SetScaleLenFrame = new SetScaleLenFrame(this);
+					m_SetScaleLenFrame->Show();
+				}
 			}
 			wxLogStatus(this, "Frame Took: %lldns", m_CurrentFrameDuration);
 		}
@@ -215,10 +234,10 @@ namespace ft
 	{
 		FT_PROFILE_FUNCTION();
 		m_Closing = true;
-		if(m_VideoAvaliable)
+		if (m_VideoAvaliable)
 		{
 			wxMessageDialog closeDialog(this, _("There's still content to be analized!\nExit anyway?"), "Exiting Inspection", wxYES_NO);
-			if(closeDialog.ShowModal() != wxID_YES)
+			if (closeDialog.ShowModal() != wxID_YES)
 			{
 				m_Closing = false;
 				return;
@@ -238,12 +257,14 @@ namespace ft
 			m_FishThread->join();
 		if (m_AddROIThread)
 			m_AddROIThread->join();
+		if (m_SetScaleThread)
+			m_SetScaleThread->join();
 
 		Destroy();
 		evt.Skip(); // don't stop event, we still want window to close
 	}
 
-	void ft::FishFrame::OnSize(wxSizeEvent& evt)
+	void FishFrame::OnSize(wxSizeEvent& evt)
 	{
 		FT_PROFILE_FUNCTION();
 
@@ -288,7 +309,7 @@ namespace ft
 		m_VideoFastFoward = true;
 	}
 
-	void ft::FishFrame::OnAddROI(wxCommandEvent& evt)
+	void FishFrame::OnAddROI(wxCommandEvent& evt)
 	{
 		FT_PROFILE_SCOPE("FishFrame::OnAddROI: getting name");
 
@@ -351,7 +372,7 @@ namespace ft
 		);
 	}
 
-	void ft::FishFrame::OnDeleteROI(wxCommandEvent& evt)
+	void FishFrame::OnDeleteROI(wxCommandEvent& evt)
 	{
 		FT_PROFILE_FUNCTION();
 		long item = m_ROILst->GetFirstSelected();
@@ -373,7 +394,7 @@ namespace ft
 			m_FishPanel->PaintNow();
 	}
 
-	void ft::FishFrame::OnSelectedROI(wxListEvent& evt)
+	void FishFrame::OnSelectedROI(wxListEvent& evt)
 	{
 		FT_PROFILE_FUNCTION();
 		m_UnactiveROIModeBtn->Enable();
@@ -387,7 +408,7 @@ namespace ft
 		evt.Skip();
 	}
 
-	void ft::FishFrame::OnDeselectedROI(wxListEvent& evt)
+	void FishFrame::OnDeselectedROI(wxListEvent& evt)
 	{
 		FT_PROFILE_FUNCTION();
 		m_UnactiveROIModeBtn->Disable();
@@ -402,7 +423,7 @@ namespace ft
 		evt.Skip();
 	}
 
-	void ft::FishFrame::OnUnactiveROIMode(wxCommandEvent& evt)
+	void FishFrame::OnUnactiveROIMode(wxCommandEvent& evt)
 	{
 		FT_PROFILE_FUNCTION();
 		m_ROILst->SetItemBackgroundColour(m_ROILst->GetFirstSelected(), m_ROILst->GetBackgroundColour());
@@ -411,7 +432,7 @@ namespace ft
 			m_FishPanel->PaintNow();
 	}
 
-	void ft::FishFrame::OnCountROIMode(wxCommandEvent& evt)
+	void FishFrame::OnCountROIMode(wxCommandEvent& evt)
 	{
 		FT_PROFILE_FUNCTION();
 		m_ROILst->SetItemBackgroundColour(m_ROILst->GetFirstSelected(), wxColor(0, 255, 50));
@@ -420,7 +441,7 @@ namespace ft
 			m_FishPanel->PaintNow();
 	}
 
-	void ft::FishFrame::OnUncountROIMode(wxCommandEvent& evt)
+	void FishFrame::OnUncountROIMode(wxCommandEvent& evt)
 	{
 		FT_PROFILE_FUNCTION();
 		m_ROILst->SetItemBackgroundColour(m_ROILst->GetFirstSelected(), wxColor(255, 50, 0));
@@ -429,18 +450,64 @@ namespace ft
 			m_FishPanel->PaintNow();
 	}
 
-	void ft::FishFrame::OnSumThresholdChange(wxCommandEvent& evt)
+	void FishFrame::OnSumThresholdChange(wxCommandEvent& evt)
 	{
+		FT_PROFILE_FUNCTION();
 		FT_ASSERT(m_SliderSumThreshold->GetValue() > 0, "SliderSumThreshold became negative!");
 		auto value = m_SliderSumThreshold->GetValue();
 		m_Fish->SetIntensitySumThreshold(value * value);
 	}
 
-	void ft::FishFrame::OnMovementThresholdChange(wxCommandEvent& evt)
+	void FishFrame::OnMovementThresholdChange(wxCommandEvent& evt)
 	{
+		FT_PROFILE_FUNCTION();
 		FT_ASSERT(m_SliderMovementThreshold->GetValue() > 0 && m_SliderMovementThreshold->GetValue() <= UCHAR_MAX, "SliderMovementThreshold outof uchar bounds!");
 		auto value = m_SliderMovementThreshold->GetValue();
 		m_Fish->SetMovementDiferenceThreshold(value);
+	}
+
+	void FishFrame::OnSetScale(wxCommandEvent& evt)
+	{
+		FT_PROFILE_FUNCTION();
+		m_Scale.release();
+		m_Scale = std::make_unique<Scale>();
+
+		m_SetScaleBtn->Disable();
+		SetCursor(wxCursor(wxCURSOR_CROSS));
+
+		m_SetScaleThread.release();
+		m_SetScaleThread = std::make_unique<std::thread>([this]() {
+			FT_PROFILE_SCOPE("FishFrame::OnSetScale: setting scale");
+
+			while (!(wxGetMouseState().LeftIsDown()) || !(GetClientRect().Contains(ScreenToClient(wxGetMousePosition()))))
+			{
+				if (m_Closing) // It only works because it immediately returns
+					return;
+				std::this_thread::sleep_for(std::chrono::milliseconds(100));
+			}
+
+			auto mousePos1 = ScreenToClient(wxGetMousePosition());
+			m_Scale->SetP0({ (float)((mousePos1.x - m_FishPanel->m_FrameLeftCoord) / m_FishPanel->m_MinorDimensionFactor) ,
+							 (float)((mousePos1.y - m_FishPanel->m_FrameTopCoord) / m_FishPanel->m_MinorDimensionFactor) });
+
+			while ((wxGetMouseState().LeftIsDown()))
+			{
+				FT_PROFILE_SCOPE("FishFrame::OnSetScale: update scale");
+				if (wxGetMouseState().RightIsDown() || wxGetKeyState(wxKeyCode::WXK_ESCAPE))
+				{
+					m_Scale.release();
+					m_FinishedSettingScaleHandled = false;
+					return;
+				}
+				auto mousePos2 = ScreenToClient(wxGetMousePosition());
+				m_Scale->SetPf({ (float)((mousePos2.x - m_FishPanel->m_FrameLeftCoord) / m_FishPanel->m_MinorDimensionFactor) ,
+								 (float)((mousePos2.y - m_FishPanel->m_FrameTopCoord) / m_FishPanel->m_MinorDimensionFactor) });
+				std::this_thread::sleep_for(std::chrono::milliseconds(1));
+			}
+			m_SetLineLenghtHandled = false;
+			m_FinishedSettingScaleHandled = false;
+			}
+		);
 	}
 
 } // namespace ft
