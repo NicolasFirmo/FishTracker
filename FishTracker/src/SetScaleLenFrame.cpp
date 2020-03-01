@@ -13,7 +13,7 @@ namespace ft {
 	SetScaleLenFrame::SetScaleLenFrame(FishFrame* parent) : wxFrame(parent, wxID_ANY, "Setting Reference Lenght", wxDefaultPosition, { 200,100 }, wxCAPTION | wxFRAME_TOOL_WINDOW | wxFRAME_FLOAT_ON_PARENT),
 		m_FishFrame(parent)
 	{
-		m_LenCtrl = new wxSpinCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 16384L, 1, 1000, 10);
+		m_LenCtrl = new wxSpinCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS, 1, 1000, 10);
 		m_UnityChc = new wxChoice(this, wxID_ANY);
 
 		m_UnityChc->AppendString("mm");

@@ -113,6 +113,10 @@ namespace ft
 
 			m_Fish = std::make_unique<Target>(m_CapFrame, m_FishPanel->m_SizeCorrected, m_SliderSumThreshold->GetValue(), m_SliderMovementThreshold->GetValue(),
 				cv::Vec3b(45, 49, 46), cv::Vec3b(123, 127, 125), cv::Size(FT_MIN_FRAME_WIDTH, FT_MIN_FRAME_HEIGHT));
+      
+      // Maybe Create only when user starts inspection?
+			m_RawData = std::make_unique<RawData>(m_ROIs, m_Fish);
+
 			m_BackgroundUpdateRect = m_Fish->GetScanningAreaRect();
 
 			m_VideoAvaliable = true;
@@ -185,6 +189,7 @@ namespace ft
 				FT_PROFILE_SCOPE("Run: Frame");
 				ScopeTimerReference<int64_t*> timer(&m_CurrentFrameDuration);
 				//FT_FUNCTION_TIMER_STATUS(microseconds, this); // Only for dev
+				double CurrentVideoTime = m_Cap.get(cv::CAP_PROP_POS_MSEC);
 				{
 					FT_PROFILE_SCOPE("Run: m_Cap.read(m_CapFrame);");
 					m_Cap.read(m_CapFrame); // Main Bottleneck
@@ -205,6 +210,7 @@ namespace ft
 				}
 
 				m_Fish->Detect();
+				m_RawData->UpdateRow(CurrentVideoTime);
 
 				{ // Set the m_ToRenderFrame here!
 					FT_PROFILE_SCOPE("Run: Setting m_ToRenderFrame...");
@@ -259,6 +265,13 @@ namespace ft
 			m_AddROIThread->join();
 		if (m_SetScaleThread)
 			m_SetScaleThread->join();
+
+    // TEMPORARY --------------------------------
+		std::ofstream ofs("test.tsv", std::ios::app);
+		m_RawData->OutPut(ofs);
+		ofs.flush();
+		ofs.close();
+    // ------------------------------------------
 
 		Destroy();
 		evt.Skip(); // don't stop event, we still want window to close

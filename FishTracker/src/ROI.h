@@ -3,7 +3,7 @@
 
 namespace ft {
 
-	enum ROIMode
+	enum class ROIMode
 	{
 		UNACTIVE = 0, COUNTING, UNCOUNTING
 	};
@@ -20,13 +20,13 @@ namespace ft {
 		inline void SetMode(ROIMode mode) {
 			m_Mode = mode; switch (m_Mode)
 			{
-			case ft::UNACTIVE:
+			case ROIMode::UNACTIVE:
 				m_Color = cv::Scalar_<uchar>(200, 200, 200);
 				break;
-			case ft::COUNTING:
+			case ROIMode::COUNTING:
 				m_Color = cv::Scalar_<uchar>(0, 255, 50);
 				break;
-			case ft::UNCOUNTING:
+			case ROIMode::UNCOUNTING:
 				m_Color = cv::Scalar_<uchar>(255, 50, 0);
 				break;
 			default:

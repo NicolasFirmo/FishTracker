@@ -4,6 +4,7 @@
 #include "SetScaleLenFrame.h"
 #include "ROI.h"
 #include "Tracking.h"
+#include "RawData.h"
 
 namespace ft {
 
@@ -71,6 +72,8 @@ namespace ft {
 		std::vector<std::unique_ptr<ROI>> m_ROIs;
 		std::unique_ptr<Target> m_Fish;
 		std::unique_ptr<Scale> m_Scale;
+		std::unique_ptr<RawData> m_RawData;
+
 		cv::Rect m_BackgroundUpdateRect;
 
 		bool m_Closing = false;

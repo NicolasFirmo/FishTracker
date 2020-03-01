@@ -12,6 +12,7 @@ CMakeFiles/
 x64/
 
 # Files
+test.tsv
 result.json
 *.user
 imgui.ini
