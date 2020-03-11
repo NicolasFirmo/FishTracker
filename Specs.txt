@@ -1,5 +1,9 @@
+-Display video time 
+-Region name textbox on top right: not so obvious
+-Reduce the load video button size
+-Enable language change
 -Set up OpenCV and wxWidgets license requirementes in this repo
--Render video inside wxWidgets or use imgui? Fuck it, done everything inside wxWidgets!
+-[OK] Render video inside wxWidgets or use imgui? Fuck it, done everything inside wxWidgets!
 -Make sure of optimization levels for debug and release
 -Know what are the other 2 configutations exactly in msvc
 -[OK] Get window close event
@@ -7,7 +11,7 @@
 -Smart pointers (podem acabar de vez com os bugs)
 -[OK] Play, pause and fastforward
 -[OK] Definir regiões com o mouse
--Regiões de interesse, regiões de detecção
+-[OK] Regiões de interesse, regiões de detecção
 -[OK] Sync analysis time using the video fps
 -Conseguir determinar a velocidade máxima do peixe
 -Amortecer os dados: vel atual, descartar pontos fora
@@ -40,4 +44,4 @@ Visita 04/10
 -Velocidade média real: média da velocidade durante os períodos em que o peixe estava se movimentando significativamente
 -Determinar estado imóvel e letárgico através de limiares de velocidade
 -Posição média
--Anexar experimentos com vários vídeo em um único arquivo
+-Anexar experimentos com vários vídeos em um único arquivo

@@ -10,12 +10,12 @@ wxEND_EVENT_TABLE()
 
 namespace ft {
 
-	MainFrame::MainFrame() : wxFrame(nullptr, wxID_ANY, "Fish Tracker", wxDefaultPosition, wxSize(320, 240), wxDEFAULT_FRAME_STYLE & ~wxRESIZE_BORDER)
+	MainFrame::MainFrame() : wxFrame(nullptr, wxID_ANY, _("Fish Tracker"), wxDefaultPosition, wxSize(320, 240), wxDEFAULT_FRAME_STYLE & ~wxRESIZE_BORDER)
 	{
 		FT_PROFILE_FUNCTION();
 		m_FishFrames.reserve(FT_MAX_NUMBER_OF_INSPECTIONS);
 
-		m_LoadBtn = new wxButton(this, FT_ID_LOAD, "Load Video");
+		m_LoadBtn = new wxButton(this, FT_ID_LOAD, _("Load Video"));
 
 		wxBoxSizer* Sizer = new wxBoxSizer(wxHORIZONTAL);
 		Sizer->Add(m_LoadBtn, 1, wxEXPAND);
@@ -54,12 +54,12 @@ namespace ft {
 
 		if (m_FishFrames.size() >= FT_MAX_NUMBER_OF_INSPECTIONS)
 		{
-			wxLogInfo("FishTracker doesn't suport more than %d inspections simultaneously!", FT_MAX_NUMBER_OF_INSPECTIONS);
+			wxLogInfo(_("FishTracker doesn't suport more than %d inspections simultaneously!"), FT_MAX_NUMBER_OF_INSPECTIONS);
 			return;
 		}
 
 		wxFileDialog openFileDialog(this, _("Load video"), "", "",
-			"wmv files (*.wmv)|*.wmv|mp4 files (*.mp4)|*.mp4|All files (*.*)|*.*", wxFD_OPEN | wxFD_FILE_MUST_EXIST);
+			"mp4 files (*.mp4)|*.mp4|All files (*)|*", wxFD_OPEN | wxFD_FILE_MUST_EXIST);
 
 		if (openFileDialog.ShowModal() == wxID_CANCEL)
 			return; // the user changed idea...
@@ -75,7 +75,7 @@ namespace ft {
 			{
 				delete m_FishFrames.back();
 				m_FishFrames.pop_back();
-				wxLogError("Unable to open video!");
+				wxLogError(_("Unable to open video!"));
 				return;
 			}
 

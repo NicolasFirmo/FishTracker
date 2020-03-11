@@ -37,10 +37,13 @@ namespace ft {
 		void OnCountROIMode(wxCommandEvent& evt);
 		void OnUncountROIMode(wxCommandEvent& evt);
 
+		void OnVideoPositionChange(wxCommandEvent& evt);
 		void OnSumThresholdChange(wxCommandEvent& evt);
 		void OnMovementThresholdChange(wxCommandEvent& evt);
 
 		void OnSetScale(wxCommandEvent& evt);
+
+		void SetRenderFrame();
 
 	public:
 		static const int m_RightPanelWidth;
@@ -60,6 +63,7 @@ namespace ft {
 		wxButton* m_CountROIModeBtn = nullptr;
 		wxButton* m_UncountROIModeBtn = nullptr;
 
+		wxSlider* m_SliderVideoPosition = nullptr;
 		wxSlider* m_SliderSumThreshold = nullptr;
 		wxSlider* m_SliderMovementThreshold = nullptr;
 
@@ -67,6 +71,8 @@ namespace ft {
 
 		cv::Mat m_ToRenderFrame;
 		cv::Size m_OriginalFrameSize;
+		int m_FrameCount;
+		int m_CurrentFramePosition = 0;
 		bool m_ResizeHandled = false;
 
 		std::vector<std::unique_ptr<ROI>> m_ROIs;
@@ -87,7 +93,9 @@ namespace ft {
 		MainFrame* m_Parent;
 		size_t m_Index;
 
+
 		cv::VideoCapture m_Cap;
+		std::mutex m_CapMutex;
 		cv::Mat m_CapFrame;
 
 		std::unique_ptr<std::thread> m_FishThread = nullptr;
@@ -102,6 +110,7 @@ namespace ft {
 		std::chrono::time_point<std::chrono::high_resolution_clock> m_SleepTimePoint;
 
 		bool m_VideoAvaliable = false;
+		bool m_VideoEnded = false;
 		bool m_VideoPlaying = false;
 		bool m_VideoFastFoward = false;
 		int64_t m_CurrentFrameDuration = 0;

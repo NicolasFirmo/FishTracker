@@ -21,6 +21,7 @@ EVT_BUTTON(FT_ID_UNCOUNTROIMODE, ft::FishFrame::OnUncountROIMode)
 EVT_LIST_ITEM_SELECTED(FT_ID_ROILIST, ft::FishFrame::OnSelectedROI)
 EVT_LIST_ITEM_DESELECTED(FT_ID_ROILIST, ft::FishFrame::OnDeselectedROI)
 
+EVT_SLIDER(FT_ID_VIDEO_POSITION, ft::FishFrame::OnVideoPositionChange)
 EVT_SLIDER(FT_ID_SUM_THRESHOLD, ft::FishFrame::OnSumThresholdChange)
 EVT_SLIDER(FT_ID_MOVEMENT_THRESHOLD, ft::FishFrame::OnMovementThresholdChange)
 
@@ -34,7 +35,7 @@ namespace ft
 	const int FishFrame::m_RightPanelWidth = 150;
 	const int FishFrame::m_ButtonHeight = 30;
 
-	FishFrame::FishFrame(MainFrame* parent, const std::string& videoPath) : wxFrame(nullptr, wxID_ANY, "Inspector", wxDefaultPosition, wxDefaultSize, wxDEFAULT_FRAME_STYLE),
+	FishFrame::FishFrame(MainFrame* parent, const std::string& videoPath) : wxFrame(nullptr, wxID_ANY, _("Inspector"), wxDefaultPosition, wxDefaultSize, wxDEFAULT_FRAME_STYLE),
 		m_Parent(parent), m_Cap(videoPath),
 		m_SleepDuration(std::chrono::microseconds(0)),
 		m_FrameTimePoint(std::chrono::high_resolution_clock::now()), m_SleepTimePoint(std::chrono::high_resolution_clock::now())
@@ -55,6 +56,7 @@ namespace ft
 
 			m_OriginalFrameSize.width = (int)m_Cap.get(cv::CAP_PROP_FRAME_WIDTH);
 			m_OriginalFrameSize.height = (int)m_Cap.get(cv::CAP_PROP_FRAME_HEIGHT);
+			m_FrameCount = (int)m_Cap.get(cv::CAP_PROP_FRAME_COUNT);
 
 			int displayWidth, displayHeight;
 			wxDisplaySize(&displayWidth, &displayHeight);
@@ -66,23 +68,24 @@ namespace ft
 
 			m_FishPanel = new FishPanel(this);
 
-			m_PlayBtn = new wxButton(this, FT_ID_PLAY, "PLAY", wxDefaultPosition, wxSize(0, m_ButtonHeight));
-			m_PauseBtn = new wxButton(this, FT_ID_PAUSE, "PAUSE", wxDefaultPosition, wxSize(0, m_ButtonHeight));
-			m_FastFowardBtn = new wxButton(this, FT_ID_FASTFOWARD, "FF", wxDefaultPosition, wxSize(0, m_ButtonHeight));
+			m_PlayBtn = new wxButton(this, FT_ID_PLAY, _("PLAY"), wxDefaultPosition, wxSize(0, m_ButtonHeight));
+			m_PauseBtn = new wxButton(this, FT_ID_PAUSE, _("PAUSE"), wxDefaultPosition, wxSize(0, m_ButtonHeight));
+			m_FastFowardBtn = new wxButton(this, FT_ID_FASTFOWARD, _("FF"), wxDefaultPosition, wxSize(0, m_ButtonHeight));
 
-			m_ROITxt = new wxTextCtrl(this, wxID_ANY, "Region", wxDefaultPosition, wxSize(m_RightPanelWidth, m_ButtonHeight));
-			m_AddROIBtn = new wxButton(this, FT_ID_ADDROI, "ADD ROI", wxDefaultPosition, wxSize(m_RightPanelWidth, m_ButtonHeight));
-			m_DeleteROIBtn = new wxButton(this, FT_ID_DELETEROI, "DELETE ROI", wxDefaultPosition, wxSize(m_RightPanelWidth, m_ButtonHeight));
-			m_UnactiveROIModeBtn = new wxButton(this, FT_ID_UNACTIVEROIMODE, "DEACTIVATE ROI", wxDefaultPosition, wxSize(m_RightPanelWidth, m_ButtonHeight));
-			m_CountROIModeBtn = new wxButton(this, FT_ID_COUNTROIMODE, "SET TO COUNT", wxDefaultPosition, wxSize(m_RightPanelWidth, m_ButtonHeight));
-			m_UncountROIModeBtn = new wxButton(this, FT_ID_UNCOUNTROIMODE, "SET TO UNCOUNT", wxDefaultPosition, wxSize(m_RightPanelWidth, m_ButtonHeight));
+			m_ROITxt = new wxTextCtrl(this, wxID_ANY, _("Region"), wxDefaultPosition, wxSize(m_RightPanelWidth, m_ButtonHeight));
+			m_AddROIBtn = new wxButton(this, FT_ID_ADDROI, _("ADD ROI"), wxDefaultPosition, wxSize(m_RightPanelWidth, m_ButtonHeight));
+			m_DeleteROIBtn = new wxButton(this, FT_ID_DELETEROI, _("DELETE ROI"), wxDefaultPosition, wxSize(m_RightPanelWidth, m_ButtonHeight));
+			m_UnactiveROIModeBtn = new wxButton(this, FT_ID_UNACTIVEROIMODE, _("DEACTIVATE ROI"), wxDefaultPosition, wxSize(m_RightPanelWidth, m_ButtonHeight));
+			m_CountROIModeBtn = new wxButton(this, FT_ID_COUNTROIMODE, _("SET TO COUNT"), wxDefaultPosition, wxSize(m_RightPanelWidth, m_ButtonHeight));
+			m_UncountROIModeBtn = new wxButton(this, FT_ID_UNCOUNTROIMODE, _("SET TO UNCOUNT"), wxDefaultPosition, wxSize(m_RightPanelWidth, m_ButtonHeight));
 			m_ROILst = new wxListView(this, FT_ID_ROILIST);
-			m_ROILst->InsertColumn(0, "Regions", 0, 150);
+			m_ROILst->InsertColumn(0, _("Regions"), 0, 150);
 
+			m_SliderVideoPosition = new wxSlider(this, FT_ID_VIDEO_POSITION, 0, 0, m_FrameCount);
 			m_SliderSumThreshold = new wxSlider(this, FT_ID_SUM_THRESHOLD, std::sqrt(FT_SUM_THRESHOLD_MAX) / 2, 1, std::sqrt(FT_SUM_THRESHOLD_MAX));
 			m_SliderMovementThreshold = new wxSlider(this, FT_ID_MOVEMENT_THRESHOLD, UCHAR_MAX / 2, 1, UCHAR_MAX);
 
-			m_SetScaleBtn = new wxButton(this, FT_ID_SET_SCALE, "SET SCALE", wxDefaultPosition, wxSize(m_RightPanelWidth, m_ButtonHeight));
+			m_SetScaleBtn = new wxButton(this, FT_ID_SET_SCALE, _("SET SCALE"), wxDefaultPosition, wxSize(m_RightPanelWidth, m_ButtonHeight));
 
 			wxBoxSizer* hSizer = new wxBoxSizer(wxHORIZONTAL);
 			wxBoxSizer* vSizer = new wxBoxSizer(wxVERTICAL);
@@ -95,6 +98,7 @@ namespace ft
 
 			vSizer->Add(m_FishPanel, 1, wxEXPAND);
 			vSizer->Add(hSizer, 0, wxEXPAND);
+			vSizer->Add(m_SliderVideoPosition, 0, wxEXPAND);
 
 			v2Sizer->Add(m_ROITxt, 0, wxEXPAND);
 			v2Sizer->Add(m_AddROIBtn, 0, wxEXPAND);
@@ -113,8 +117,8 @@ namespace ft
 
 			m_Fish = std::make_unique<Target>(m_CapFrame, m_FishPanel->m_SizeCorrected, m_SliderSumThreshold->GetValue(), m_SliderMovementThreshold->GetValue(),
 				cv::Vec3b(45, 49, 46), cv::Vec3b(123, 127, 125), cv::Size(FT_MIN_FRAME_WIDTH, FT_MIN_FRAME_HEIGHT));
-      
-      // Maybe Create only when user starts inspection?
+
+			// Maybe Create only when user starts inspection?
 			m_RawData = std::make_unique<RawData>(m_ROIs, m_Fish);
 
 			m_BackgroundUpdateRect = m_Fish->GetScanningAreaRect();
@@ -150,10 +154,12 @@ namespace ft
 		if (!m_Closing)
 			m_FishPanel->PaintNow();
 
+		m_SliderVideoPosition->SetValue(m_CurrentFramePosition);
+
 		if (!m_EndOfTheVideoHandled)
 		{
 			m_EndOfTheVideoHandled = true;
-			wxLogInfo("End of the video");
+			wxLogInfo(_("End of the video"));
 		}
 
 		if (IsActive())
@@ -176,7 +182,7 @@ namespace ft
 					m_SetScaleLenFrame->Show();
 				}
 			}
-			wxLogStatus(this, "Frame Took: %lldns", m_CurrentFrameDuration);
+			wxLogStatus(this, _("Frame Took: %lldns"), m_CurrentFrameDuration);
 		}
 	}
 
@@ -189,17 +195,20 @@ namespace ft
 				FT_PROFILE_SCOPE("Run: Frame");
 				ScopeTimerReference<int64_t*> timer(&m_CurrentFrameDuration);
 				//FT_FUNCTION_TIMER_STATUS(microseconds, this); // Only for dev
+				m_CapMutex.lock();
 				double CurrentVideoTime = m_Cap.get(cv::CAP_PROP_POS_MSEC);
+				m_CurrentFramePosition = m_Cap.get(cv::CAP_PROP_POS_FRAMES);
 				{
 					FT_PROFILE_SCOPE("Run: m_Cap.read(m_CapFrame);");
 					m_Cap.read(m_CapFrame); // Main Bottleneck
 				}
+				m_CapMutex.unlock();
 				if (m_CapFrame.empty())
 				{
 					m_EndOfTheVideoHandled = false;
 					m_VideoPlaying = false;
-					m_VideoAvaliable = false;
-					return;
+					m_VideoEnded = true;
+					continue;
 				}
 
 				if (!(m_BackgroundUpdateRect.contains(m_Fish->GetCurrentPosition())))
@@ -212,15 +221,7 @@ namespace ft
 				m_Fish->Detect();
 				m_RawData->UpdateRow(CurrentVideoTime);
 
-				{ // Set the m_ToRenderFrame here!
-					FT_PROFILE_SCOPE("Run: Setting m_ToRenderFrame...");
-					// Debug ----------
-					//m_ToRenderFrame.setTo(0);
-					//m_Fish->m_MovementMat.copyTo(m_ToRenderFrame, m_Fish->m_WhatIsFish);
-					m_CapFrame.copyTo(m_ToRenderFrame);
-					//cv::rectangle(m_ToRenderFrame, m_BackgroundUpdateRect, cv::Vec3b(255, 0, 255));
-					// ----------------
-				}
+				SetRenderFrame();
 
 				if (m_VideoFastFoward)
 					continue;
@@ -240,16 +241,16 @@ namespace ft
 	{
 		FT_PROFILE_FUNCTION();
 		m_Closing = true;
-		if (m_VideoAvaliable)
+		if (m_VideoEnded)
 		{
-			wxMessageDialog closeDialog(this, _("There's still content to be analized!\nExit anyway?"), "Exiting Inspection", wxYES_NO);
+			wxMessageDialog closeDialog(this, _("There's still content to be analized!\nExit anyway?"), _("Exiting Inspection"), wxYES_NO);
 			if (closeDialog.ShowModal() != wxID_YES)
 			{
 				m_Closing = false;
 				return;
 			}
-			m_VideoAvaliable = false;
 		}
+		m_VideoAvaliable = false;
 
 		m_Parent->m_FishFramesMutex.lock();
 
@@ -266,12 +267,12 @@ namespace ft
 		if (m_SetScaleThread)
 			m_SetScaleThread->join();
 
-    // TEMPORARY --------------------------------
+		// TEMPORARY --------------------------------
 		std::ofstream ofs("test.tsv", std::ios::app);
 		m_RawData->OutPut(ofs);
 		ofs.flush();
 		ofs.close();
-    // ------------------------------------------
+		// ------------------------------------------
 
 		Destroy();
 		evt.Skip(); // don't stop event, we still want window to close
@@ -290,9 +291,9 @@ namespace ft
 	void FishFrame::OnPlay(wxCommandEvent& evt)
 	{
 		FT_PROFILE_FUNCTION();
-		if (!m_VideoAvaliable)
+		if (m_VideoEnded)
 		{
-			wxLogInfo("There is no video loaded");
+			wxLogInfo(_("Video reached the end!"));
 			return;
 		}
 		m_VideoFastFoward = false;
@@ -303,9 +304,9 @@ namespace ft
 	void FishFrame::OnPause(wxCommandEvent& evt)
 	{
 		FT_PROFILE_FUNCTION();
-		if (!m_VideoAvaliable)
+		if (m_VideoEnded)
 		{
-			wxLogInfo("There is no video loaded");
+			wxLogInfo(_("Video reached the end!"));
 			return;
 		}
 		m_VideoPlaying = false;
@@ -313,9 +314,9 @@ namespace ft
 	void FishFrame::OnFastFoward(wxCommandEvent& evt)
 	{
 		FT_PROFILE_FUNCTION();
-		if (!m_VideoAvaliable)
+		if (m_VideoEnded)
 		{
-			wxLogInfo("There is no video loaded");
+			wxLogInfo(_("Video reached the end!"));
 			return;
 		}
 		m_VideoPlaying = true;
@@ -463,6 +464,20 @@ namespace ft
 			m_FishPanel->PaintNow();
 	}
 
+	void ft::FishFrame::OnVideoPositionChange(wxCommandEvent& evt)
+	{
+		FT_PROFILE_FUNCTION();
+		FT_ASSERT(m_SliderSumThreshold->GetValue() > 0, "Video Position became negative!");
+
+		m_CapMutex.lock();
+		m_CurrentFramePosition = m_SliderVideoPosition->GetValue();
+		m_Cap.set(cv::CAP_PROP_POS_FRAMES, m_CurrentFramePosition);
+		m_Cap.read(m_CapFrame);
+		SetRenderFrame();
+		m_VideoEnded = false;
+		m_CapMutex.unlock();
+	}
+
 	void FishFrame::OnSumThresholdChange(wxCommandEvent& evt)
 	{
 		FT_PROFILE_FUNCTION();
@@ -521,6 +536,17 @@ namespace ft
 			m_FinishedSettingScaleHandled = false;
 			}
 		);
+	}
+
+	void ft::FishFrame::SetRenderFrame()
+	{
+		FT_PROFILE_FUNCTION();
+		// Debug ----------
+		//m_ToRenderFrame.setTo(0);
+		//m_Fish->m_MovementMat.copyTo(m_ToRenderFrame, m_Fish->m_WhatIsFish);
+		m_CapFrame.copyTo(m_ToRenderFrame);
+		//cv::rectangle(m_ToRenderFrame, m_BackgroundUpdateRect, cv::Vec3b(255, 0, 255));
+		// ----------------
 	}
 
 } // namespace ft

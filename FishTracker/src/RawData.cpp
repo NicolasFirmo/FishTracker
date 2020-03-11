@@ -56,9 +56,11 @@ namespace ft {
 		for (auto& ROI : m_ROIs)
 			os << '\t' << ROI->GetName();
 
+		os << '\n';
+
 		for (auto& row : m_Rows)
 		{
-			os << '\n' << row.first << '\t' << row.second.targetPosition;
+			os << row.first << '\t' << row.second.targetPosition;
 
 			for (auto& ROI : m_ROIs)
 			{
@@ -75,6 +77,8 @@ namespace ft {
 				}
 				os << ROIState;
 			}
+
+			os << '\n';
 		}
 	}
 
